@@ -18,14 +18,14 @@ var game = function () {
 
 
 
-    Q.load("mario_small.png, mario_small.json, goomba.png, goomba.json, tiles.png, bloopa.json, bloopa.png, princess.png, mainTitle.png, coin.png, coin.json, music_main.mp3, music_main.ogg,coin.mp3, coin.ogg,music_die.mp3, music_die.ogg, music_level_complete.mp3, music_level_complete.ogg", function () {
+    Q.load("", function () {
         // Sprites sheets can be created manually
         Q.sheet("tiles", "tiles.png", {
             tilew: 32,
             tileh: 32
         });
         // Or from a .json asset that defines sprite locations
-        Q.compileSheets("mario_small.png", "mario_small.json");
+        Q.compileSheets("");
         Q.animations('player_anim', {
             run_right: {
                 frames: [1, 2, 3],

@@ -148,7 +148,7 @@ var game = function () {
             }
         });
         //***************************************
-        Q.compileSheets("goomba.png", "goomba.json");
+        Q.compileSheets();
 
         Q.animations('goomba_anim', {
             move: {

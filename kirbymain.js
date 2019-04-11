@@ -18,7 +18,7 @@ var game = function () {
 
 
 
-    Q.load("tiles.png, mainTitle.png, music_main.mp3, music_die.mp3, music_level_complete.mp3", function () {
+    Q.load("kirby.json,kirby.png,tiles.png", function () {
         // Sprites sheets can be created manually
         Q.sheet("tiles", "tiles.png", {
             tilew: 32,
@@ -26,9 +26,10 @@ var game = function () {
         });
         // Or from a .json asset that defines sprite locations
         //        Q.compileSheets("mario_small.png", "mario_small.json");
+        Q.compileSheets("kirby.png", "kirby.json");
         Q.animations('player_anim', {
             run_right: {
-                frames: [1, 2, 3],
+                frames: [2, 3, 4, 5],
                 rate: 1 / 15
             },
             run_left: {
@@ -69,19 +70,15 @@ var game = function () {
 
 
         Q.Sprite.extend("Player", {
-
             init: function (p) {
-
                 this._super(p, {
                     sprite: "player_anim",
-                    sheet: "marioR", // Setting a sprite sheet sets sprite width and height
+                    sheet: "kirbyR", // Setting a sprite sheet sets sprite width and height
                     x: 50, // You can also set additional properties that can
                     y: 380, // be overridden on object creation
                     dead: false
                 });
-
                 this.add('2d, platformerControls, animation');
-
             },
             step: function (dt) {
                 if (!this.p.dead) {
@@ -108,12 +105,10 @@ var game = function () {
                 } else {
                     this.p.vx = 0;
                 }
-
             }
         });
         Q.component("enemy", {
             added: function () {
-
                 this.entity.on("bump.left,bump.right,bump.bottom", function (collision) {
 
                     if (collision.obj.isA("Player") && !collision.obj.p.dead) {
@@ -128,11 +123,9 @@ var game = function () {
                         //collision.obj.destroy();
                     }
                 });
-
             }
         });
         Q.component("impact_enemy", { //change vy to vx and impact enemies should work
-
             move: function (dt) {
                 if (this.p.move == 'left') {
                     this.p.dest = this.p.x - this.p.range;
@@ -158,13 +151,9 @@ var game = function () {
                     this.play("move_left");
                 else
                     this.play("move_right");
-
-
             }
-
-
         });
-        Q.compileSheets("bloopa.png", "bloopa.json");
+//        Q.compileSheets("bloopa.png", "bloopa.json");
         Q.animations('bloopa_anim', {
             move_up: {
                 frames: [0, 1],
@@ -202,8 +191,8 @@ var game = function () {
 
         //************************************** */
         Q.scene("endGame", function (stage) {
-            Q.audio.stop('music_main.mp3');
-            Q.audio.play('music_die.mp3');
+    //        Q.audio.stop('music_main.mp3');
+      //      Q.audio.play('music_die.mp3');
 
             var container = stage.insert(new Q.UI.Container({
                 x: Q.width / 2,
@@ -225,14 +214,14 @@ var game = function () {
             }));
 
             button.on("click", function () {
-                Q.audio.stop();
+     //           Q.audio.stop();
                 Q.clearStages();
                 Q.stageScene('hud', 1);
                 Q.stageScene('level1');
                 Q.state.p.score = 0;
-                Q.audio.play('music_main.mp3', {
-                    loop: true
-                });
+     //           Q.audio.play('music_main.mp3', {
+       //             loop: true
+         //       });
             });
             Q.input.on('fire', this, () => {
                 Q.audio.stop();
@@ -240,16 +229,16 @@ var game = function () {
                 Q.stageScene('hud', 1);
                 Q.stageScene('level1');
                 Q.state.p.score = 0;
-                Q.audio.play('music_main.mp3', {
-                    loop: true
-                });
+  //              Q.audio.play('music_main.mp3', {
+    //                loop: true
+      //          });
             });
             container.fit(20);
         });
 
         Q.scene("winGame", function (stage) {
-            Q.audio.stop('music_main.mp3');
-            Q.audio.play('music_level_complete.mp3');
+  //          Q.audio.stop('music_main.mp3');
+    //        Q.audio.play('music_level_complete.mp3');
 
             var container = stage.insert(new Q.UI.Container({
                 x: Q.width / 2,
@@ -276,9 +265,9 @@ var game = function () {
                 Q.stageScene('hud', 1);
                 Q.stageScene('level1');
                 Q.state.p.score = 0;
-                Q.audio.play('music_main.mp3', {
-                    loop: true
-                });
+  //              Q.audio.play('music_main.mp3', {
+    //                loop: true
+      //          });
 
             });
             Q.input.on('fire', this, () => {
@@ -287,13 +276,13 @@ var game = function () {
                 Q.stageScene('hud', 1);
                 Q.stageScene('level1');
                 Q.state.p.score = 0;
-                Q.audio.play('music_main.mp3', {
-                    loop: true
-                });
+  //             Q.audio.play('music_main.mp3', {
+    //                loop: true
+      //          });
             });
             container.fit(20);
         });
-        Q.compileSheets("mainTitle.png");
+     //   Q.compileSheets("mainTitle.png");
 
         Q.scene("mainTitle", function (stage) {
             var container = stage.insert(new Q.UI.Container({
@@ -305,7 +294,7 @@ var game = function () {
             }));
 
             var button = container.insert(new Q.UI.Button({
-                asset: 'mainTitle.png',
+    //           asset: 'mainTitle.png',
                 x: 0,
                 y: 0,
                 fill: "#CCCCCC",
@@ -315,9 +304,9 @@ var game = function () {
                 Q.clearStages();
                 Q.stageScene('hud', 1);
                 Q.stageScene('level1');
-                Q.audio.play('music_main.mp3', {
-                    loop: true
-                });
+     //           Q.audio.play('music_main.mp3', {
+       //             loop: true
+         //       });
 
             });
 

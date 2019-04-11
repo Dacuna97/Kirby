@@ -131,7 +131,15 @@ var game = function () {
 
             }
         });
+<<<<<<< HEAD
         Q.component("impact_enemy", { //change vy to vx and impact enemies should work
+=======
+        //***************************************
+        Q.compileSheets();
+
+        Q.animations('goomba_anim', {
+            move: {
+>>>>>>> d3d3a5072dc4777eabfac97bffcaa8fc14c3ca95
 
             move: function (dt) {
                 if (this.p.move == 'up') {

@@ -338,7 +338,7 @@ var game = function () {
             stage.insert(new Q.Score());
         })
         Q.scene("level1", function (stage) {
-            Q.stageTMX("level.tmx", stage);
+            Q.stageTMX("kirbyBG.tmx", stage);
             // Create the player and add them to the stage
 
             var player = stage.insert(new Q.Player());
@@ -348,7 +348,7 @@ var game = function () {
             });
         });
 
-        Q.loadTMX("level.tmx", function () {
+        Q.loadTMX("kirbyBG.tmx", function () {
             Q.state.reset({
                 score: 0
             });

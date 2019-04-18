@@ -10,8 +10,8 @@ var game = function () {
         // Maximize this game to whatever the size of the browser is
         .setup({
             scaleToFit: true,
-            width: 1200,
-            height: 800
+            width: 250,
+            height: 150
         })
         // And turn on default input controls and touch input (for UI)
         .controls().touch().enableSound();
@@ -33,7 +33,7 @@ var game = function () {
                 rate: 1 / 15
             },
             run_left: {
-                frames: [15, 16, 17],
+                frames: [2, 3, 4, 5],
                 rate: 1 / 15
             },
             stand_right: {
@@ -41,7 +41,7 @@ var game = function () {
                 rate: 1 / 5
             },
             stand_left: {
-                frames: [14],
+                frames: [0],
                 rate: 1 / 5
             },
             jump_right: {
@@ -49,16 +49,16 @@ var game = function () {
                 rate: 1 / 15
             },
             jump_left: {
-                frames: [18],
+                frames: [4],
                 rate: 1 / 15
             },
             fall_right: {
-                frames: [6],
+                frames: [5],
                 rate: 1 / 30,
                 loop: false
             },
             fall_left: {
-                frames: [20],
+                frames: [5],
                 rate: 1 / 30,
                 loop: false
             },
@@ -74,8 +74,8 @@ var game = function () {
                 this._super(p, {
                     sprite: "player_anim",
                     sheet: "kirbyR", // Setting a sprite sheet sets sprite width and height
-                    x: 50, // You can also set additional properties that can
-                    y: 380, // be overridden on object creation
+                    x: 128, // You can also set additional properties that can
+                    y: 0, // be overridden on object creation
                     dead: false
                 });
                 this.add('2d, platformerControls, animation');
@@ -105,6 +105,8 @@ var game = function () {
                 } else {
                     this.p.vx = 0;
                 }
+                if (this.p.x <= 128)
+                    this.p.x = 128
             }
         });
         Q.component("enemy", {
@@ -153,7 +155,7 @@ var game = function () {
                     this.play("move_right");
             }
         });
-//        Q.compileSheets("bloopa.png", "bloopa.json");
+        //        Q.compileSheets("bloopa.png", "bloopa.json");
         Q.animations('bloopa_anim', {
             move_up: {
                 frames: [0, 1],
@@ -191,8 +193,8 @@ var game = function () {
 
         //************************************** */
         Q.scene("endGame", function (stage) {
-    //        Q.audio.stop('music_main.mp3');
-      //      Q.audio.play('music_die.mp3');
+            //        Q.audio.stop('music_main.mp3');
+            //      Q.audio.play('music_die.mp3');
 
             var container = stage.insert(new Q.UI.Container({
                 x: Q.width / 2,
@@ -214,14 +216,14 @@ var game = function () {
             }));
 
             button.on("click", function () {
-     //           Q.audio.stop();
+                //           Q.audio.stop();
                 Q.clearStages();
                 Q.stageScene('hud', 1);
                 Q.stageScene('level1');
                 Q.state.p.score = 0;
-     //           Q.audio.play('music_main.mp3', {
-       //             loop: true
-         //       });
+                //           Q.audio.play('music_main.mp3', {
+                //             loop: true
+                //       });
             });
             Q.input.on('fire', this, () => {
                 Q.audio.stop();
@@ -229,16 +231,16 @@ var game = function () {
                 Q.stageScene('hud', 1);
                 Q.stageScene('level1');
                 Q.state.p.score = 0;
-  //              Q.audio.play('music_main.mp3', {
-    //                loop: true
-      //          });
+                //              Q.audio.play('music_main.mp3', {
+                //                loop: true
+                //          });
             });
             container.fit(20);
         });
 
         Q.scene("winGame", function (stage) {
-  //          Q.audio.stop('music_main.mp3');
-    //        Q.audio.play('music_level_complete.mp3');
+            //          Q.audio.stop('music_main.mp3');
+            //        Q.audio.play('music_level_complete.mp3');
 
             var container = stage.insert(new Q.UI.Container({
                 x: Q.width / 2,
@@ -265,9 +267,9 @@ var game = function () {
                 Q.stageScene('hud', 1);
                 Q.stageScene('level1');
                 Q.state.p.score = 0;
-  //              Q.audio.play('music_main.mp3', {
-    //                loop: true
-      //          });
+                //              Q.audio.play('music_main.mp3', {
+                //                loop: true
+                //          });
 
             });
             Q.input.on('fire', this, () => {
@@ -276,13 +278,13 @@ var game = function () {
                 Q.stageScene('hud', 1);
                 Q.stageScene('level1');
                 Q.state.p.score = 0;
-  //             Q.audio.play('music_main.mp3', {
-    //                loop: true
-      //          });
+                //             Q.audio.play('music_main.mp3', {
+                //                loop: true
+                //          });
             });
             container.fit(20);
         });
-     //   Q.compileSheets("mainTitle.png");
+        //   Q.compileSheets("mainTitle.png");
 
         Q.scene("mainTitle", function (stage) {
             var container = stage.insert(new Q.UI.Container({
@@ -294,7 +296,7 @@ var game = function () {
             }));
 
             var button = container.insert(new Q.UI.Button({
-    //           asset: 'mainTitle.png',
+                //           asset: 'mainTitle.png',
                 x: 0,
                 y: 0,
                 fill: "#CCCCCC",
@@ -304,9 +306,9 @@ var game = function () {
                 Q.clearStages();
                 Q.stageScene('hud', 1);
                 Q.stageScene('level1');
-     //           Q.audio.play('music_main.mp3', {
-       //             loop: true
-         //       });
+                //           Q.audio.play('music_main.mp3', {
+                //             loop: true
+                //       });
 
             });
 
@@ -346,6 +348,7 @@ var game = function () {
                 x: true,
                 y: false
             });
+            // stage.viewport.scale=2;
         });
 
         Q.loadTMX("kirbyBG.tmx", function () {

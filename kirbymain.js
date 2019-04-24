@@ -81,6 +81,7 @@ var game = function () {
                 this.add('2d, platformerControls, animation');
             },
             step: function (dt) {
+                this.p.vx /= 2;
                 if (!this.p.dead) {
                     if (this.p.vy < 0) { //jump
                         this.p.y -= 2;

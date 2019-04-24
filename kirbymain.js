@@ -10,7 +10,7 @@ var game = function () {
         // Maximize this game to whatever the size of the browser is
         .setup({
             scaleToFit: true,
-            width: 450,
+            width: 340,
             height: 170
         })
         // And turn on default input controls and touch input (for UI)
@@ -82,7 +82,7 @@ var game = function () {
                 this._super(p, {
                     sprite: "player_anim",
                     sheet: "kirbyR", // Setting a sprite sheet sets sprite width and height
-                    x: 128, // You can also set additional properties that can
+                    x: 180, // You can also set additional properties that can
                     y: 0, // be overridden on object creation
                     dead: false
                 });
@@ -112,8 +112,15 @@ var game = function () {
                         this.play("stand_" + this.p.direction);
                     }
                 } else {
-                    this.p.vx = 0;
+                   this.p.vx = 0;
                 }
+                if (this.p.x>=848.400 ||this.p.x<=180)
+                    this.stage.unfollow();
+                else 
+                this.stage.follow(this, {
+                    x: true,
+                    y: false
+                });
             }
         });
         Q.component("enemy", {

@@ -336,7 +336,8 @@ var game = function () {
                     this._super({
                         label: "score: 0",
                         x: 50,
-                        y: 0
+                        y: 0,
+                        scale:1/2
                     });
                     Q.state.on("change.score", this, "score");
                 },

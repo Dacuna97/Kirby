@@ -10,8 +10,8 @@ var game = function () {
         // Maximize this game to whatever the size of the browser is
         .setup({
             scaleToFit: true,
-            width: 1500,
-            height: 800
+            width: 450,
+            height: 170
         })
         // And turn on default input controls and touch input (for UI)
         .controls().touch().enableSound();
@@ -30,27 +30,35 @@ var game = function () {
         Q.animations('player_anim', {
             run_right: {
                 frames: [2, 3, 4, 5],
-                rate: 1 / 15
+                rate: 1 / 15,
+                flip: false,
+                loop: true
             },
             run_left: {
                 frames: [2, 3, 4, 5],
-                rate: 1 / 15
+                rate: 1 / 15,
+                flip: "x",
+                loop: true
             },
             stand_right: {
                 frames: [0],
-                rate: 1 / 5
+                rate: 1 / 5,
+                flip: false
             },
             stand_left: {
                 frames: [0],
-                rate: 1 / 5
+                rate: 1 / 5,
+                flip: "x"
             },
             jump_right: {
                 frames: [4],
-                rate: 1 / 15
+                rate: 1 / 15,
+                flip: false
             },
             jump_left: {
                 frames: [4],
-                rate: 1 / 15
+                rate: 1 / 15,
+                flip: "x"
             },
             fall_right: {
                 frames: [5],

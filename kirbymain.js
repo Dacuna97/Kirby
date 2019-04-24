@@ -10,8 +10,8 @@ var game = function () {
         // Maximize this game to whatever the size of the browser is
         .setup({
             scaleToFit: true,
-            width: 250,
-            height: 150
+            width: 1500,
+            height: 800
         })
         // And turn on default input controls and touch input (for UI)
         .controls().touch().enableSound();
@@ -105,8 +105,6 @@ var game = function () {
                 } else {
                     this.p.vx = 0;
                 }
-                if (this.p.x <= 128)
-                    this.p.x = 128
             }
         });
         Q.component("enemy", {

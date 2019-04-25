@@ -95,7 +95,7 @@ var game = function () {
                 this.add('2d, platformerControls, animation');
             },
             step: function (dt) {
-               
+
                 this.p.vx /= 2;
                 if (!this.p.dead) {
                     if (this.p.vy < 0) { //jump
@@ -118,30 +118,30 @@ var game = function () {
                         this.play("stand_" + this.p.direction);
                     }
                 } else {
-                   this.p.vx = 0;
+                    this.p.vx = 0;
                 }
-                if (this.p.x>=848.400 ||this.p.x<=180)
+                if (this.p.x >= 848.400 || this.p.x <= 180)
                     this.stage.unfollow();
-                else 
-                this.stage.follow(this, {
-                    x: true,
-                    y: false
-                });
-                if(Q.inputs['down']) {
-                   this.play("move_down");
+                else
+                    this.stage.follow(this, {
+                        x: true,
+                        y: false
+                    });
+                if (Q.inputs['down']) {
+                    this.play("move_down");
                 }
-                
-                if(Q.inputs['fire']) {
+
+                if (Q.inputs['fire']) {
                     console.log(this.p.y);
-                    if(this.p.y < 10){
+                    if (this.p.y < 10) {
                         this.p.y = 10;
                     }
-                    if(this.p.vy < -50){
+                    if (this.p.vy < -50) {
                         this.p.vy = -50;
                     } else {
                         this.p.vy -= 50;
                     }
-                    this.play("jump_" + this.p.direction);                   
+                    this.play("jump_" + this.p.direction);
                 }
             }
         });
@@ -366,7 +366,7 @@ var game = function () {
                         label: "score: 0",
                         x: 50,
                         y: 0,
-                        scale:1/2
+                        scale: 1 / 2
                     });
                     Q.state.on("change.score", this, "score");
                 },

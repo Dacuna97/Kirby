@@ -3,7 +3,7 @@ var game = function () {
     // Set up an instance of the Quintus engine and include
     // the Sprites, Scenes, Input and 2D module. The 2D module
     // includes the `TileLayer` class as well as the `2d` componet.
-    var Q = Quintus({
+    var Q = window.Q = Quintus({
             audioSupported: ['mp3', 'ogg']
         })
         .include("Sprites, Scenes, Input, 2D, Anim, Touch, UI, TMX,Audio")
@@ -70,6 +70,11 @@ var game = function () {
                 rate: 1 / 30,
                 loop: false
             },
+            move_down: {
+                frames: [6],
+                rate: 1 / 15,
+                loop: false
+            },
             die: {
                 frames: [12],
                 rate: 1 / 5
@@ -84,15 +89,16 @@ var game = function () {
                     sheet: "kirbyR", // Setting a sprite sheet sets sprite width and height
                     x: 180, // You can also set additional properties that can
                     y: 0, // be overridden on object creation
-                    dead: false
+                    dead: false,
+                    jumping: false
                 });
                 this.add('2d, platformerControls, animation');
             },
             step: function (dt) {
+               
                 this.p.vx /= 2;
                 if (!this.p.dead) {
                     if (this.p.vy < 0) { //jump
-                        this.p.y -= 2;
                         this.play("jump_" + this.p.direction);
                     } else if (this.p.vy > 0) {
                         this.play("fall_" + this.p.direction);
@@ -121,6 +127,22 @@ var game = function () {
                     x: true,
                     y: false
                 });
+                if(Q.inputs['down']) {
+                   this.play("move_down");
+                }
+                
+                if(Q.inputs['fire']) {
+                    console.log(this.p.y);
+                    if(this.p.y < 10){
+                        this.p.y = 10;
+                    }
+                    if(this.p.vy < -50){
+                        this.p.vy = -50;
+                    } else {
+                        this.p.vy -= 50;
+                    }
+                    this.play("jump_" + this.p.direction);                   
+                }
             }
         });
         Q.component("enemy", {
@@ -239,7 +261,7 @@ var game = function () {
                 //             loop: true
                 //       });
             });
-            Q.input.on('fire', this, () => {
+            Q.input.on('confirm', this, () => {
                 Q.audio.stop();
                 Q.clearStages();
                 Q.stageScene('hud', 1);
@@ -286,7 +308,7 @@ var game = function () {
                 //          });
 
             });
-            Q.input.on('fire', this, () => {
+            Q.input.on('confirm', this, () => {
                 Q.audio.stop();
                 Q.clearStages();
                 Q.stageScene('hud', 1);
@@ -326,7 +348,7 @@ var game = function () {
 
             });
 
-            Q.input.on('fire', this, () => {
+            Q.input.on('confirm', this, () => {
                 Q.clearStages();
                 Q.stageScene('hud', 1);
                 Q.stageScene('level1');

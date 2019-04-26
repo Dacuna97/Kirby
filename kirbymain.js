@@ -47,7 +47,7 @@ var game = function () {
             },
             stand_left: {
                 frames: [0, 1],
-                rate: 1 /2,
+                rate: 1 / 2,
                 flip: "x"
             },
             jump_right: {
@@ -76,13 +76,19 @@ var game = function () {
                 loop: false
             },
             fly_right: {
-                frames:[7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
-                rate: 1 /30,
+                frames: [2, 3],
+                rate: 1 / 1,
                 flip: false,
             },
             fly_left: {
-                frames:[7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
-                rate: 1 /30,
+                frames: [2, 3],
+                rate: 1 / 1,
+                flip: "x",
+
+            },
+            swell_right: {
+                frames: [0, 1, 2, 3],
+                rate: 1 / 30,
                 flip: "x",
 
             },
@@ -101,18 +107,20 @@ var game = function () {
                     x: 180, // You can also set additional properties that can
                     y: 0, // be overridden on object creation
                     dead: false,
-                    jumping: false
+                    flying: false
                 });
                 this.add('2d, platformerControls, animation');
-                
+
             },
             step: function (dt) {
-               
+                if (this.p.flying)
+                    this.p.vy /= 2;
+
                 this.p.vx /= 2;
                 if (!this.p.dead) {
-                    if (this.p.vy < 0) { //jump
+                    if (this.p.vy < 0 && !this.p.flying) { //jump
                         this.play("jump_" + this.p.direction);
-                    } else if (this.p.vy > 0) {
+                    } else if (this.p.vy > 0 && !this.p.flying) {
                         this.play("fall_" + this.p.direction);
                         //if dies
                         if (this.p.y > 580) {
@@ -122,12 +130,15 @@ var game = function () {
                                 label: "You Died"
                             });
                         }
-                    } else if (this.p.vx > 0 && this.p.vy == 0) {
+                    } else if (this.p.vx > 0 && this.p.vy == 0 && !this.p.flying) {
                         this.play("run_right");
-                    } else if (this.p.vx < 0 && this.p.vy == 0) {
+                    } else if (this.p.vx < 0 && this.p.vy == 0 && !this.p.flying) {
                         this.play("run_left");
                     } else {
-                        this.play("stand_" + this.p.direction);
+                        if (!this.p.flying)
+                            this.play("stand_" + this.p.direction);
+                        else
+                            this.play("fly_" + this.p.direction);
                     }
                 } else {
                     this.p.vx = 0;
@@ -144,6 +155,12 @@ var game = function () {
                 }
 
                 if (Q.inputs['fire']) {
+                    if (!this.p.flying) {
+                        this.p.sheet = 'kirbyFly';
+                        this.p.flying = true;
+                        this.play("swell_right");
+                    }
+
                     console.log(this.p.y);
                     if (this.p.y < 10) {
                         this.p.y = 10;
@@ -153,11 +170,19 @@ var game = function () {
                     } else {
                         this.p.vy -= 50;
                     }
-                    this.play("fly_" + this.p.direction); 
+
                 }
-              
+                if (Q.inputs['action']) {
+                    if(this.p.flying){
+                        this.p.flying=false;
+                        this.p.sheet ="kirbyR";
+                    }
+
+                    }
+                
+
             },
-            
+
         });
         Q.component("enemy", {
             added: function () {

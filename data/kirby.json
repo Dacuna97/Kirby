@@ -1,3 +1,4 @@
 {
-	"kirbyR":{"sx":0,"sy":0,"tileW":16,"tileH":16,"frames":16}
+	"kirbyR":{"sx":0,"sy":0,"tileW":16,"tileH":16,"frames":16},
+	"kirbyFly":{"sx":135,"sy":1,"tileW":24,"tileH":35,"frames":16}
 }

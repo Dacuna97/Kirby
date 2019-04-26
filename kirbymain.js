@@ -41,13 +41,13 @@ var game = function () {
                 loop: true
             },
             stand_right: {
-                frames: [0],
-                rate: 1 / 5,
+                frames: [0, 1],
+                rate: 1 / 2,
                 flip: false
             },
             stand_left: {
-                frames: [0],
-                rate: 1 / 5,
+                frames: [0, 1],
+                rate: 1 /2,
                 flip: "x"
             },
             jump_right: {
@@ -75,6 +75,17 @@ var game = function () {
                 rate: 1 / 15,
                 loop: false
             },
+            fly_right: {
+                frames:[7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
+                rate: 1 /30,
+                flip: false,
+            },
+            fly_left: {
+                frames:[7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
+                rate: 1 /30,
+                flip: "x",
+
+            },
             die: {
                 frames: [12],
                 rate: 1 / 5
@@ -93,9 +104,10 @@ var game = function () {
                     jumping: false
                 });
                 this.add('2d, platformerControls, animation');
+                
             },
             step: function (dt) {
-
+               
                 this.p.vx /= 2;
                 if (!this.p.dead) {
                     if (this.p.vy < 0) { //jump
@@ -141,9 +153,11 @@ var game = function () {
                     } else {
                         this.p.vy -= 50;
                     }
-                    this.play("jump_" + this.p.direction);
+                    this.play("fly_" + this.p.direction); 
                 }
-            }
+              
+            },
+            
         });
         Q.component("enemy", {
             added: function () {

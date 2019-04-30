@@ -4,8 +4,8 @@ var game = function () {
     // the Sprites, Scenes, Input and 2D module. The 2D module
     // includes the `TileLayer` class as well as the `2d` componet.
     var Q = window.Q = Quintus({
-            audioSupported: ['mp3', 'ogg']
-        })
+        audioSupported: ['mp3', 'ogg']
+    })
         .include("Sprites, Scenes, Input, 2D, Anim, Touch, UI, TMX,Audio")
         // Maximize this game to whatever the size of the browser is
         .setup({
@@ -76,21 +76,33 @@ var game = function () {
                 loop: false
             },
             fly_right: {
-                frames: [2, 3],
+                frames: [1, 2],
                 rate: 1 / 1,
                 flip: false,
             },
             fly_left: {
-                frames: [2, 3],
+                frames: [1, 2],
                 rate: 1 / 1,
                 flip: "x",
 
             },
+            start_swell_right: {
+                frames: [8, 9],
+                rate: 1 / 2,
+                flip: false,
+                loop: false
+            },
             swell_right: {
-                frames: [0, 1, 2, 3],
-                rate: 1 / 30,
-                flip: "x",
-
+                frames: [0],
+                rate: 1 / 2,
+                flip: false,
+                loop: false
+            },
+            start_fly_right: {
+                frames: [0],
+                rate: 1 / 1,
+                loop: false,
+                flip: false
             },
             die: {
                 frames: [12],
@@ -107,7 +119,9 @@ var game = function () {
                     x: 180, // You can also set additional properties that can
                     y: 0, // be overridden on object creation
                     dead: false,
-                    flying: false
+                    flying: false,
+                    swell: false,
+                    swell_time: 0
                 });
                 this.add('2d, platformerControls, animation');
 
@@ -153,33 +167,51 @@ var game = function () {
                 if (Q.inputs['down'] && !this.p.flying) {
                     this.play("move_down");
                 }
-
-                if (Q.inputs['fire']) {
-                    if (!this.p.flying) {
-                        this.p.sheet = 'kirbyFly';
-                        this.p.flying = true;
+                if (this.p.swell) {
+                    this.p.swell_time += dt;
+                    if (this.p.swell_time < 1 / 5) {
+                        this.play("start_swell_right");
+                    }
+                    if (this.p.swell_time >= 1 / 5 && this.p.swell_time < 2 / 5){
+                        this.p.sheet = "kirbySwell";
                         this.play("swell_right");
                     }
-
-                    console.log(this.p.y);
-                    if (this.p.y < 10) {
-                        this.p.y = 10;
+                    if(this.p.swell_time >= 2 / 5 && this.p.swell_time < 3 / 5){
+                        this.p.sheet = "kirbyFly";
+                        this.play("start_fly_right");
                     }
-                    if (this.p.vy < -50) {
-                        this.p.vy = -50;
-                    } else {
-                        this.p.vy -= 50;
+                    if(this.p.swell_time >= 3 / 5){
+                        this.p.swell = false;
+                        this.p.flying = true;
+                        this.p.sheet = "kirbyFly";
+                    }
+                    console.log(this.p.swell_time);
+                }
+                if (Q.inputs['fire']) {
+                    if (!this.p.flying && !this.p.swell) {
+                        this.p.swell = true;
+                    }
+                    if (this.p.flying) {
+                        if (this.p.y < 10) {
+                            this.p.y = 10;
+                        }
+                        if (this.p.vy < -50) {
+                            this.p.vy = -50;
+                        } else {
+                            this.p.vy -= 50;
+                        }
                     }
 
                 }
                 if (Q.inputs['action']) {
-                    if(this.p.flying){
-                        this.p.flying=false;
-                        this.p.sheet ="kirbyR";
+                    if (this.p.flying) {
+                        this.p.flying = false;
+                        this.p.sheet = "kirbyR";
+                        this.p.swell_time = 0;
                     }
 
-                    }
-                
+                }
+
 
             },
 

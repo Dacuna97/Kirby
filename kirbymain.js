@@ -167,30 +167,37 @@ var game = function () {
                 if (Q.inputs['down'] && !this.p.flying) {
                     this.play("move_down");
                 }
+                //animation of getting bigger done in 3 steps
                 if (this.p.swell) {
-                    this.p.swell_time += dt;
-                    if (this.p.swell_time < 1 / 5) {
+                    this.p.swell_time += dt; //add time to change from step to step in animation
+                    if (this.p.swell_time < 1 / 5) { // first two frames of Kirby opening mouth
                         this.play("start_swell_right");
                     }
                     if (this.p.swell_time >= 1 / 5 && this.p.swell_time < 2 / 5){
+                        // step of Kirby opening mouth, getting taller but not wider
                         this.p.sheet = "kirbySwell";
                         this.play("swell_right");
                     }
                     if(this.p.swell_time >= 2 / 5 && this.p.swell_time < 3 / 5){
+                        // step of Kirby with mouth open, taller and wider
                         this.p.sheet = "kirbyFly";
                         this.play("start_fly_right");
                     }
                     if(this.p.swell_time >= 3 / 5){
+                        //change state of animation from swallowing air to flying one where it only moves hands
                         this.p.swell = false;
                         this.p.flying = true;
                         this.p.sheet = "kirbyFly";
                     }
-                    console.log(this.p.swell_time);
+                   
                 }
+                //when Z or SPACE is pressed
                 if (Q.inputs['fire']) {
+                    //if Kirby is not flying and has not started swallowing air
                     if (!this.p.flying && !this.p.swell) {
-                        this.p.swell = true;
+                        this.p.swell = true; //start swallowing animation
                     }
+                    //check if flies higher than possible
                     if (this.p.flying) {
                         if (this.p.y < 10) {
                             this.p.y = 10;

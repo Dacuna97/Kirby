@@ -249,23 +249,24 @@ var game = function () {
                 }
             },
             unswell_animation: function(dt){
+                //same but when Kirby releases the air
                 if (this.p.unswell) {
                     this.p.swell_time += dt; //add time to change from step to step in animation
-                    if (this.p.swell_time < 1 / 5) { // first two frames of Kirby opening mouth
+                    if (this.p.swell_time < 1 / 5) { 
                         this.play("start_fly_" + this.p.direction);
                     }
                     if (this.p.swell_time >= 1 / 5 && this.p.swell_time < 2 / 5){
-                        // step of Kirby opening mouth, getting taller but not wider
+                      
                         this.p.sheet = "kirbySwell";
                         this.play("swell_" + this.p.direction);
                     }
                     if(this.p.swell_time >= 2 / 5 && this.p.swell_time < 3 / 5){
-                        // step of Kirby with mouth open, taller and wider
+                       
                         this.p.sheet = "kirbyR";
                         this.play("start_swell_" + this.p.direction);
                     }
                     if(this.p.swell_time >= 3 / 5){
-                        //change state of animation from swallowing air to flying one where it only moves hands
+                       
                         this.p.unswell = false;
                         this.p.flying = false;
                         this.p.swell_time = 0;

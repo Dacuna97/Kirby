@@ -84,12 +84,17 @@ var game = function () {
                 frames: [1, 2],
                 rate: 1 / 1,
                 flip: "x",
-
             },
             start_swell_right: {
                 frames: [8, 9],
                 rate: 1 / 2,
                 flip: false,
+                loop: false
+            },
+            start_swell_left: {
+                frames: [8, 9],
+                rate: 1 / 2,
+                flip: "x",
                 loop: false
             },
             swell_right: {
@@ -98,11 +103,23 @@ var game = function () {
                 flip: false,
                 loop: false
             },
+            swell_left: {
+                frames: [0],
+                rate: 1 / 2,
+                flip: "x",
+                loop: false
+            },
             start_fly_right: {
                 frames: [0],
                 rate: 1 / 1,
                 loop: false,
                 flip: false
+            },
+            start_fly_leftt: {
+                frames: [0],
+                rate: 1 / 1,
+                loop: false,
+                flip: "x"
             },
             die: {
                 frames: [12],
@@ -117,10 +134,12 @@ var game = function () {
                     sprite: "player_anim",
                     sheet: "kirbyR", // Setting a sprite sheet sets sprite width and height
                     x: 180, // You can also set additional properties that can
-                    y: 0, // be overridden on object creation
+                    y: -10, // be overridden on object creation
                     dead: false,
                     flying: false,
                     swell: false,
+                    down: false,
+                    unswell: false,
                     swell_time: 0
                 });
                 this.add('2d, platformerControls, animation');
@@ -165,32 +184,15 @@ var game = function () {
                         y: false
                     });
                 if (Q.inputs['down'] && !this.p.flying) {
+                    this.p.down = true;
                     this.play("move_down");
                 }
-                //animation of getting bigger done in 3 steps
-                if (this.p.swell) {
-                    this.p.swell_time += dt; //add time to change from step to step in animation
-                    if (this.p.swell_time < 1 / 5) { // first two frames of Kirby opening mouth
-                        this.play("start_swell_right");
-                    }
-                    if (this.p.swell_time >= 1 / 5 && this.p.swell_time < 2 / 5){
-                        // step of Kirby opening mouth, getting taller but not wider
-                        this.p.sheet = "kirbySwell";
-                        this.play("swell_right");
-                    }
-                    if(this.p.swell_time >= 2 / 5 && this.p.swell_time < 3 / 5){
-                        // step of Kirby with mouth open, taller and wider
-                        this.p.sheet = "kirbyFly";
-                        this.play("start_fly_right");
-                    }
-                    if(this.p.swell_time >= 3 / 5){
-                        //change state of animation from swallowing air to flying one where it only moves hands
-                        this.p.swell = false;
-                        this.p.flying = true;
-                        this.p.sheet = "kirbyFly";
-                    }
-                   
+                if(this.p.down = true && Q.inputs['right'] || Q.inputs['left']){
+                    //kick
                 }
+
+                this.swell_animation(dt);
+                this.unswell_animation(dt);
                 //when Z or SPACE is pressed
                 if (Q.inputs['fire']) {
                     //if Kirby is not flying and has not started swallowing air
@@ -212,15 +214,66 @@ var game = function () {
                 }
                 if (Q.inputs['action']) {
                     if (this.p.flying) {
-                        this.p.flying = false;
-                        this.p.sheet = "kirbyR";
                         this.p.swell_time = 0;
+                        this.p.unswell = true;
                     }
 
                 }
 
 
             },
+            swell_animation: function(dt) {
+                //animation of getting bigger done in 3 steps
+                if (this.p.swell) {
+                    this.p.swell_time += dt; //add time to change from step to step in animation
+                    if (this.p.swell_time < 1 / 5) { // first two frames of Kirby opening mouth
+                        this.play("start_swell_" + this.p.direction);
+                    }
+                    if (this.p.swell_time >= 1 / 5 && this.p.swell_time < 2 / 5){
+                        // step of Kirby opening mouth, getting taller but not wider
+                        this.p.sheet = "kirbySwell";
+                        this.play("swell_" + this.p.direction);
+                    }
+                    if(this.p.swell_time >= 2 / 5 && this.p.swell_time < 3 / 5){
+                        // step of Kirby with mouth open, taller and wider
+                        this.p.sheet = "kirbyFly";
+                        this.play("start_fly_" + this.p.direction);
+                    }
+                    if(this.p.swell_time >= 3 / 5){
+                        //change state of animation from swallowing air to flying one where it only moves hands
+                        this.p.swell = false;
+                        this.p.flying = true;
+                        this.p.sheet = "kirbyFly";
+                    }
+                   
+                }
+            },
+            unswell_animation: function(dt){
+                if (this.p.unswell) {
+                    this.p.swell_time += dt; //add time to change from step to step in animation
+                    if (this.p.swell_time < 1 / 5) { // first two frames of Kirby opening mouth
+                        this.play("start_fly_" + this.p.direction);
+                    }
+                    if (this.p.swell_time >= 1 / 5 && this.p.swell_time < 2 / 5){
+                        // step of Kirby opening mouth, getting taller but not wider
+                        this.p.sheet = "kirbySwell";
+                        this.play("swell_" + this.p.direction);
+                    }
+                    if(this.p.swell_time >= 2 / 5 && this.p.swell_time < 3 / 5){
+                        // step of Kirby with mouth open, taller and wider
+                        this.p.sheet = "kirbyR";
+                        this.play("start_swell_" + this.p.direction);
+                    }
+                    if(this.p.swell_time >= 3 / 5){
+                        //change state of animation from swallowing air to flying one where it only moves hands
+                        this.p.unswell = false;
+                        this.p.flying = false;
+                        this.p.swell_time = 0;
+                    }
+                   
+                }
+                
+            }
 
         });
         Q.component("enemy", {

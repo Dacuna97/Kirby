@@ -150,7 +150,7 @@ var game = function () {
                         x: true,
                         y: false
                     });
-                if (Q.inputs['down']) {
+                if (Q.inputs['down'] && !this.p.flying) {
                     this.play("move_down");
                 }
 

@@ -115,7 +115,7 @@ var game = function () {
                 loop: false,
                 flip: false
             },
-            start_fly_leftt: {
+            start_fly_left: {
                 frames: [0],
                 rate: 1 / 1,
                 loop: false,

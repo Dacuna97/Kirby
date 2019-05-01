@@ -223,9 +223,8 @@ var game = function () {
                         this.p.down = false;
                     //   });
 
-
-
                 }
+
 
                 this.swell_animation(dt);
                 this.unswell_animation(dt);
@@ -248,6 +247,7 @@ var game = function () {
                     }
 
                 }
+
                 if (Q.inputs['action']) {
                     if (this.p.flying) {
                         this.p.swell_time = 0;
@@ -256,6 +256,20 @@ var game = function () {
 
                 }
 
+                if(this.p.x >= 975 && this.p.x <= 982){
+                    if(Q.inputs['up']) {
+                        if(Q.state.get("level") == 1) {
+                            Q.state.inc("level", 1);
+                            Q.stageScene('level2');  
+                        }
+                        else {
+                            Q.stageScene("endGame", 1, {
+                                label: "You Win"
+                            });
+                        }
+                      
+                    }
+                }
 
             },
             swell_animation: function (dt) {
@@ -555,9 +569,20 @@ var game = function () {
             });
             // stage.viewport.scale=2;
         });
+        Q.scene("level2", function (stage) {
+            Q.stageTMX("kirbyBG2.tmx", stage);
+            // Create the player and add them to the stage
 
-        Q.loadTMX("kirbyBG.tmx", function () {
+            var player = stage.insert(new Q.Player());
+            stage.add("viewport").follow(player, {
+                x: true,
+                y: false
+            });
+            // stage.viewport.scale=2;
+        });
+        Q.loadTMX("kirbyBG.tmx, kirbyBG2.tmx", function () {
             Q.state.reset({
+                level: 1,
                 score: 0
             });
             Q.stageScene("mainTitle");

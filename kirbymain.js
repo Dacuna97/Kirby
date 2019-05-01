@@ -18,7 +18,7 @@ var game = function () {
 
 
 
-    Q.load("kirby.json,kirby.png,tiles.png", function () {
+    Q.load("kirby.json,kirby.png,tiles.png,enemy1.png, enemy1.json", function () {
         // Sprites sheets can be created manually
         Q.sheet("tiles", "tiles.png", {
             tilew: 32,
@@ -332,14 +332,18 @@ var game = function () {
                 this.entity.on("bump.left,bump.right,bump.bottom", function (collision) {
 
                     if (collision.obj.isA("Player") && !collision.obj.p.dead) {
-                        collision.obj.play("die");
-                        collision.obj.p.dead = true;
-                        collision.obj.p.vy = -500;
-                        collision.obj.del("platformerControls");
-                        Q.stageScene("endGame", 1, {
-                            label: "You Died"
-                        });
-
+                        if(collision.obj.p.attack) {
+                            this.destroy();
+                        }
+                        else {
+                            collision.obj.play("die");
+                            collision.obj.p.dead = true;
+                            collision.obj.p.vy = -500;
+                            collision.obj.del("platformerControls");
+                            Q.stageScene("endGame", 1, {
+                                label: "You Died"
+                            });
+                        }
                         //collision.obj.destroy();
                     }
                 });
@@ -373,6 +377,39 @@ var game = function () {
                     this.play("move_right");
             }
         });
+
+
+        Q.compileSheets("enemy1.png","enemy1.json");
+
+        Q.animations('enemy1_anim', {
+            run: {
+                frames: [0, 1],
+                rate: 1 / 10,
+                loop: true
+            }
+        });
+
+        Q.Sprite.extend("Enemy1", {
+
+            init: function (p) {
+
+                this._super(p, {
+                    sprite: "enemy1_anim",
+                    sheet: "enemy1", // Setting a sprite sheet sets sprite width and height
+                    x: p.x, // You can also set additional properties that can
+                    y: p.y, // be overridden on object creation
+                    vx: 40,
+                    dead: false
+                });
+                this.add('2d,aiBounce,enemy,animation');
+            },
+            step: function (dt) {
+                if (this.p.vx > 0 || this.p.vx < 0)
+                    this.play("run");
+            }
+        });
+
+
         //        Q.compileSheets("bloopa.png", "bloopa.json");
         Q.animations('bloopa_anim', {
             move_up: {
@@ -567,6 +604,11 @@ var game = function () {
                 x: true,
                 y: false
             });
+
+            stage.insert(new Q.Enemy1({
+                x: 250,
+                y: 130
+            }));
             // stage.viewport.scale=2;
         });
         Q.scene("level2", function (stage) {

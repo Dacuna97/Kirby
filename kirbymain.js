@@ -4,8 +4,8 @@ var game = function () {
     // the Sprites, Scenes, Input and 2D module. The 2D module
     // includes the `TileLayer` class as well as the `2d` componet.
     var Q = window.Q = Quintus({
-            audioSupported: ['mp3', 'ogg']
-        })
+        audioSupported: ['mp3', 'ogg']
+    })
         .include("Sprites, Scenes, Input, 2D, Anim, Touch, UI, TMX,Audio")
         // Maximize this game to whatever the size of the browser is
         .setup({
@@ -186,8 +186,8 @@ var game = function () {
                         if (!this.p.flying && !this.p.attack)
                             this.play("stand_" + this.p.direction);
                         else
-                        if (!this.p.attack)
-                            this.play("fly_" + this.p.direction);
+                            if (!this.p.attack)
+                                this.play("fly_" + this.p.direction);
                     }
                 } else {
                     this.p.vx = 0;
@@ -203,31 +203,12 @@ var game = function () {
                     this.p.down = true;
                     this.play("move_down");
                 }
-                if (!this.p.flying && this.p.down == true && (Q.inputs['right'] || Q.inputs['left'])) {
-                    //kick
-                    if (this.p.reload == 0) {
-                        this.p.attack = true;
-                        this.p.sheet = 'kirbykick';
-                        //    $.when($.ajax()).then(function () {
-                        this.play("kick_" + this.p.direction);
-                        var aux = this;
-                        this.p.vx *= 2;
-                        setTimeout(function () {
-                            aux.p.attack = false;
-                            aux.p.sheet = 'kirbyR';
-                            aux.p.down = false;
-                            aux.p.reload = 0.5;
-                        }, 300);
 
-                    } else
-                        this.p.down = false;
-                    //   });
-
-                }
 
 
                 this.swell_animation(dt);
                 this.unswell_animation(dt);
+                this.kick();
                 //when Z or SPACE is pressed
                 if (Q.inputs['fire']) {
                     //if Kirby is not flying and has not started swallowing air
@@ -256,18 +237,18 @@ var game = function () {
 
                 }
 
-                if(this.p.x >= 975 && this.p.x <= 982){
-                    if(Q.inputs['up']) {
-                        if(Q.state.get("level") == 1) {
+                if (this.p.x >= 975 && this.p.x <= 982) {
+                    if (Q.inputs['up']) {
+                        if (Q.state.get("level") == 1) {
                             Q.state.inc("level", 1);
-                            Q.stageScene('level2');  
+                            Q.stageScene('level2');
                         }
                         else {
                             Q.stageScene("endGame", 1, {
                                 label: "You Win"
                             });
                         }
-                      
+
                     }
                 }
 
@@ -276,20 +257,20 @@ var game = function () {
                 //animation of getting bigger done in 3 steps
                 if (this.p.swell) {
                     this.p.swell_time += dt; //add time to change from step to step in animation
-                    if (this.p.swell_time < 1 / 5) { // first two frames of Kirby opening mouth
+                    if (this.p.swell_time < 1 / 10) { // first two frames of Kirby opening mouth
                         this.play("start_swell_" + this.p.direction);
                     }
-                    if (this.p.swell_time >= 1 / 5 && this.p.swell_time < 2 / 5) {
+                    if (this.p.swell_time >= 1 / 10 && this.p.swell_time < 2 / 10) {
                         // step of Kirby opening mouth, getting taller but not wider
                         this.p.sheet = "kirbySwell";
                         this.play("swell_" + this.p.direction);
                     }
-                    if (this.p.swell_time >= 2 / 5 && this.p.swell_time < 3 / 5) {
+                    if (this.p.swell_time >= 2 / 10 && this.p.swell_time < 3 / 10) {
                         // step of Kirby with mouth open, taller and wider
                         this.p.sheet = "kirbyFly";
                         this.play("start_fly_" + this.p.direction);
                     }
-                    if (this.p.swell_time >= 3 / 5) {
+                    if (this.p.swell_time >= 3 / 10) {
                         //change state of animation from swallowing air to flying one where it only moves hands
                         this.p.swell = false;
                         this.p.flying = true;
@@ -302,21 +283,19 @@ var game = function () {
                 //same but when Kirby releases the air
                 if (this.p.unswell) {
                     this.p.swell_time += dt; //add time to change from step to step in animation
-                    if (this.p.swell_time < 1 / 5) {
+                    if (this.p.swell_time < 1 / 10) {
                         this.play("start_fly_" + this.p.direction);
                     }
-                    if (this.p.swell_time >= 1 / 5 && this.p.swell_time < 2 / 5) {
-
+                    if (this.p.swell_time >= 1 / 10 && this.p.swell_time < 2 / 10) {
                         this.p.sheet = "kirbySwell";
                         this.play("swell_" + this.p.direction);
                     }
-                    if (this.p.swell_time >= 2 / 5 && this.p.swell_time < 3 / 5) {
+                    if (this.p.swell_time >= 2 / 10 && this.p.swell_time < 3 / 10) {
 
                         this.p.sheet = "kirbyR";
                         this.play("start_swell_" + this.p.direction);
                     }
-                    if (this.p.swell_time >= 3 / 5) {
-
+                    if (this.p.swell_time >= 3 / 10) {
                         this.p.unswell = false;
                         this.p.flying = false;
                         this.p.swell_time = 0;
@@ -324,6 +303,32 @@ var game = function () {
 
                 }
 
+            },
+            kick: function () {
+                if (!this.p.flying && this.p.down == true && Q.inputs['action']) {
+                    //kick
+                    if (this.p.reload == 0) {
+                        this.p.attack = true;
+                        this.p.sheet = 'kirbykick';
+                        //    $.when($.ajax()).then(function () {
+                        this.play("kick_" + this.p.direction);
+                        var aux = this;
+                        if (this.p.direction === "left") {
+                            this.p.vx -= 150;
+                        } else {
+                            this.p.vx += 150;
+                        }
+                        setTimeout(function () {
+                            aux.p.attack = false;
+                            aux.p.sheet = 'kirbyR';
+                            aux.p.down = false;
+                            aux.p.reload = 0.1;
+                        }, 300);
+
+                    } else
+                        this.p.down = false;
+
+                }
             }
 
         });
@@ -332,7 +337,7 @@ var game = function () {
                 this.entity.on("bump.left,bump.right,bump.bottom", function (collision) {
 
                     if (collision.obj.isA("Player") && !collision.obj.p.dead) {
-                        if(collision.obj.p.attack) {
+                        if (collision.obj.p.attack) {
                             this.destroy();
                         }
                         else {
@@ -379,7 +384,7 @@ var game = function () {
         });
 
 
-        Q.compileSheets("enemy1.png","enemy1.json");
+        Q.compileSheets("enemy1.png", "enemy1.json");
 
         Q.animations('enemy1_anim', {
             run: {

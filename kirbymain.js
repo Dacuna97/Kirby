@@ -342,7 +342,7 @@ var game = function () {
                             aux.p.sheet = 'kirbyR';
                             aux.p.reload = 0.1;
                         }, 300);
-                        
+
                     }
                 }
             }
@@ -351,7 +351,7 @@ var game = function () {
         Q.component("enemy", {
             added: function () {
                 this.entity.on("hit.sprite", function (collision) {
-                    if(collision.obj.state === "attack"){
+                    if (collision.obj.state === "attack") {
                         collision.distance += 16;
                     }
                     if (collision.obj.isA("Player") && collision.obj.p.state != "dead") {
@@ -375,7 +375,7 @@ var game = function () {
         Q.component("eat", {
             added: function () {
                 this.entity.p.power = "eat";
-               
+
             },
             extend: {
                 attack: function (stop) {

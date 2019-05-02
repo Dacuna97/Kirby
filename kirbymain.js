@@ -131,6 +131,19 @@ var game = function () {
                 frames: [0],
                 rate: 0.1 / 1,
                 loop: false,
+                flip: false
+            },
+            eat_right: {
+                frames: [0, 1, 2],
+                rate: 1 / 100,
+                flip: false,
+                loop: true
+            },
+            eat_left: {
+                frames: [0, 1, 2],
+                rate: 1 / 100,
+                flip: "x",
+                loop: true
             },
             die: {
                 frames: [12],
@@ -146,47 +159,42 @@ var game = function () {
                     sheet: "kirbyR", // Setting a sprite sheet sets sprite width and height
                     x: 180, // You can also set additional properties that can
                     y: -10, // be overridden on object creation
-                    dead: false,
-                    flying: false,
-                    swell: false,
-                    down: false,
-                    unswell: false,
+                    state: "",
                     swell_time: 0,
-                    attack: false,
                     reload: 0
                 });
-                this.add('2d, platformerControls, animation');
+                this.add('2d, platformerControls, animation, eat');
 
             },
             step: function (dt) {
-                if (this.p.flying)
+                if (this.p.state === "flying")
                     this.p.vy /= 2;
                 this.p.reload -= dt;
                 if (this.p.reload < 0)
                     this.p.reload = 0;
                 this.p.vx /= 2;
-                if (!this.p.dead) {
-                    if (this.p.vy < 0 && !this.p.flying && !this.p.attack) { //jump
+                if (this.p.state != "dead") {
+                    if (this.p.vy < 0 && this.p.state === "") { //jump
                         this.play("jump_" + this.p.direction);
-                    } else if (this.p.vy > 0 && !this.p.flying && !this.p.attack) {
+                    } else if (this.p.vy > 0 && this.p.state === "") {
                         this.play("fall_" + this.p.direction);
                         //if dies
                         if (this.p.y > 580) {
                             this.play("die");
-                            this.p.dead = true;
+                            this.p.state = "dead";
                             Q.stageScene("endGame", 1, {
                                 label: "You Died"
                             });
                         }
-                    } else if (this.p.vx > 0 && this.p.vy == 0 && !this.p.flying && !this.p.attack) {
+                    } else if (this.p.vx > 0 && this.p.vy == 0 && this.p.state === "") {
                         this.play("run_right");
-                    } else if (this.p.vx < 0 && this.p.vy == 0 && !this.p.flying && !this.p.attack) {
+                    } else if (this.p.vx < 0 && this.p.vy == 0 && this.p.state === "") {
                         this.play("run_left");
                     } else {
-                        if (!this.p.flying && !this.p.attack)
+                        if (this.p.state === "")
                             this.play("stand_" + this.p.direction);
                         else
-                            if (!this.p.attack)
+                            if (this.p.state === "flying")
                                 this.play("fly_" + this.p.direction);
                     }
                 } else {
@@ -199,9 +207,11 @@ var game = function () {
                         x: true,
                         y: false
                     });
-                if (Q.inputs['down'] && !this.p.flying && !this.p.attack) {
-                    this.p.down = true;
+                if (Q.inputs['down'] && this.p.state === "") {
+                    this.p.state = "down";
                     this.play("move_down");
+                } else if (this.p.state === "down" && !Q.inputs['down']) {
+                    this.p.state = "";
                 }
 
 
@@ -209,14 +219,15 @@ var game = function () {
                 this.swell_animation(dt);
                 this.unswell_animation(dt);
                 this.kick();
+
                 //when Z or SPACE is pressed
                 if (Q.inputs['fire']) {
                     //if Kirby is not flying and has not started swallowing air
-                    if (!this.p.flying && !this.p.swell) {
-                        this.p.swell = true; //start swallowing animation
+                    if (this.p.state === "") {
+                        this.p.state = "swell"; //start swallowing animation
                     }
                     //check if flies higher than possible
-                    if (this.p.flying) {
+                    if (this.p.state === "flying") {
                         if (this.p.y < 10) {
                             this.p.y = 10;
                         }
@@ -230,11 +241,16 @@ var game = function () {
                 }
 
                 if (Q.inputs['action']) {
-                    if (this.p.flying) {
+                    if (this.p.state === "flying") {
                         this.p.swell_time = 0;
-                        this.p.unswell = true;
+                        this.p.state = "unswell";
+                    } else if ((this.p.state === "" || this.p.state === "attack") && this.p.reload === 0) {
+                        this.attack(false);
                     }
-
+                } else {
+                    if (this.p.state === "attack") {
+                        this.attack(true);
+                    }
                 }
 
                 if (this.p.x >= 975 && this.p.x <= 982) {
@@ -255,7 +271,7 @@ var game = function () {
             },
             swell_animation: function (dt) {
                 //animation of getting bigger done in 3 steps
-                if (this.p.swell) {
+                if (this.p.state === "swell") {
                     this.p.swell_time += dt; //add time to change from step to step in animation
                     if (this.p.swell_time < 1 / 10) { // first two frames of Kirby opening mouth
                         this.play("start_swell_" + this.p.direction);
@@ -263,41 +279,43 @@ var game = function () {
                     if (this.p.swell_time >= 1 / 10 && this.p.swell_time < 2 / 10) {
                         // step of Kirby opening mouth, getting taller but not wider
                         this.p.sheet = "kirbySwell";
+                        this.size(true);
                         this.play("swell_" + this.p.direction);
                     }
                     if (this.p.swell_time >= 2 / 10 && this.p.swell_time < 3 / 10) {
                         // step of Kirby with mouth open, taller and wider
                         this.p.sheet = "kirbyFly";
+                        this.size(true);
                         this.play("start_fly_" + this.p.direction);
                     }
                     if (this.p.swell_time >= 3 / 10) {
                         //change state of animation from swallowing air to flying one where it only moves hands
-                        this.p.swell = false;
-                        this.p.flying = true;
+                        this.p.state = "flying";
                         this.p.sheet = "kirbyFly";
+                        this.size(true);
                     }
 
                 }
             },
             unswell_animation: function (dt) {
                 //same but when Kirby releases the air
-                if (this.p.unswell) {
+                if (this.p.state === "unswell") {
                     this.p.swell_time += dt; //add time to change from step to step in animation
                     if (this.p.swell_time < 1 / 10) {
                         this.play("start_fly_" + this.p.direction);
                     }
                     if (this.p.swell_time >= 1 / 10 && this.p.swell_time < 2 / 10) {
                         this.p.sheet = "kirbySwell";
+                        this.size(true);
                         this.play("swell_" + this.p.direction);
                     }
                     if (this.p.swell_time >= 2 / 10 && this.p.swell_time < 3 / 10) {
-
                         this.p.sheet = "kirbyR";
+                        this.size(true);
                         this.play("start_swell_" + this.p.direction);
                     }
                     if (this.p.swell_time >= 3 / 10) {
-                        this.p.unswell = false;
-                        this.p.flying = false;
+                        this.p.state = "";
                         this.p.swell_time = 0;
                     }
 
@@ -305,11 +323,12 @@ var game = function () {
 
             },
             kick: function () {
-                if (!this.p.flying && this.p.down == true && Q.inputs['action']) {
+                if ((this.p.state === "down" || this.p.state === "kick") && Q.inputs['action']) {
                     //kick
                     if (this.p.reload == 0) {
-                        this.p.attack = true;
+                        this.p.state = "kick"
                         this.p.sheet = 'kirbykick';
+                        this.size(true);
                         //    $.when($.ajax()).then(function () {
                         this.play("kick_" + this.p.direction);
                         var aux = this;
@@ -319,30 +338,29 @@ var game = function () {
                             this.p.vx += 150;
                         }
                         setTimeout(function () {
-                            aux.p.attack = false;
+                            aux.p.state = "";
                             aux.p.sheet = 'kirbyR';
-                            aux.p.down = false;
                             aux.p.reload = 0.1;
                         }, 300);
-
-                    } else
-                        this.p.down = false;
-
+                        
+                    }
                 }
             }
 
         });
         Q.component("enemy", {
             added: function () {
-                this.entity.on("bump.left,bump.right,bump.bottom", function (collision) {
-
-                    if (collision.obj.isA("Player") && !collision.obj.p.dead) {
-                        if (collision.obj.p.attack) {
+                this.entity.on("hit.sprite", function (collision) {
+                    if(collision.obj.state === "attack"){
+                        collision.distance += 16;
+                    }
+                    if (collision.obj.isA("Player") && collision.obj.p.state != "dead") {
+                        if (collision.obj.p.state === "attack" || collision.obj.p.state === "kick") {
                             this.destroy();
                         }
                         else {
                             collision.obj.play("die");
-                            collision.obj.p.dead = true;
+                            collision.obj.p.state = "dead";
                             collision.obj.p.vy = -500;
                             collision.obj.del("platformerControls");
                             Q.stageScene("endGame", 1, {
@@ -352,6 +370,31 @@ var game = function () {
                         //collision.obj.destroy();
                     }
                 });
+            }
+        });
+        Q.component("eat", {
+            added: function () {
+                this.entity.p.power = "eat";
+               
+            },
+            extend: {
+                attack: function (stop) {
+                    if (!stop) {
+                        this.del("platformerControls");
+                        this.p.state = "attack";
+                        this.p.sheet = "kirbyEat";
+                        this.size(true);
+                        this.play("eat_" + this.p.direction);
+                    } else {
+                        let direction = this.p.direction;
+                        this.p.sheet = "kirbyR";
+                        this.size(true);
+                        this.add("platformerControls");
+                        this.p.direction = direction;
+                        this.play("stand_" + this.p.direction);
+                        this.p.state = "";
+                    }
+                }
             }
         });
         Q.component("impact_enemy", { //change vy to vx and impact enemies should work
@@ -609,7 +652,6 @@ var game = function () {
                 x: true,
                 y: false
             });
-
             stage.insert(new Q.Enemy1({
                 x: 250,
                 y: 130

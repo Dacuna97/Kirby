@@ -18,7 +18,7 @@ var game = function () {
 
 
 
-    Q.load("kirby.json,kirby.png,tiles.png,enemy1.png, enemy1.json", function () {
+    Q.load("kirby.json,kirby.png,tiles.png,enemy1.png, enemy1.json, enemy_spark.png, enemy_spark.json", function () {
         // Sprites sheets can be created manually
         Q.sheet("tiles", "tiles.png", {
             tilew: 32,
@@ -135,13 +135,13 @@ var game = function () {
             },
             eat_right: {
                 frames: [0, 1, 2],
-                rate: 1 / 10,
+                rate: 1 / 8,
                 flip: false,
                 loop: true
             },
             eat_left: {
                 frames: [0, 1, 2],
-                rate: 1 / 10,
+                rate: 1 / 8,
                 flip: "x",
                 loop: true
             },
@@ -503,7 +503,43 @@ var game = function () {
             },
 
         });
+        Q.compileSheets("enemy_spark.png", "enemy_spark.json");
 
+        Q.animations('enemy_spark_anim', {
+            move_right: {
+                frames: [0, 1, 2],
+                rate: 1 / 10,
+                flip: "x",
+                loop: true
+            },
+            move_left: {
+                frames: [0, 1, 2],
+                rate: 1 / 10,
+                flip: false,
+                loop: true
+            }
+        });
+        Q.Sprite.extend("EnemySpark", {
+
+            init: function (p) {
+                this._super(p, {
+                    sprite: "enemy_spark_anim",
+                    sheet: "enemy_spark", // Setting a sprite sheet sets sprite width and height
+                    x: p.x, // You can also set additional properties that can
+                    y: p.y, // be overridden on object creation
+                    vx: 40,
+                    dead: false
+                });
+                this.add('2d,aiBounce,enemy,animation,tween');
+            },
+            step: function (dt) {
+                if (this.p.vx > 0)
+                    this.play("move_left");
+                else {
+                    this.play("move_right");
+                }
+            }
+        });
         //************************************** */
         Q.scene("endGame", function (stage) {
             //        Q.audio.stop('music_main.mp3');
@@ -664,6 +700,10 @@ var game = function () {
             });
             stage.insert(new Q.Enemy1({
                 x: 250,
+                y: 130
+            }));
+            stage.insert(new Q.EnemySpark({
+                x: 500,
                 y: 130
             }));
             // stage.viewport.scale=2;

@@ -11,7 +11,7 @@ var game = function () {
         .setup({
             scaleToFit: true,
             width: 340,
-            height: 170
+            height: 255
         })
         // And turn on default input controls and touch input (for UI)
         .controls().touch().enableSound();
@@ -135,13 +135,13 @@ var game = function () {
             },
             eat_right: {
                 frames: [0, 1, 2],
-                rate: 1 / 100,
+                rate: 1 / 10,
                 flip: false,
                 loop: true
             },
             eat_left: {
                 frames: [0, 1, 2],
-                rate: 1 / 100,
+                rate: 1 / 10,
                 flip: "x",
                 loop: true
             },

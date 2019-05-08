@@ -4,8 +4,8 @@ var game = function () {
     // the Sprites, Scenes, Input and 2D module. The 2D module
     // includes the `TileLayer` class as well as the `2d` componet.
     var Q = window.Q = Quintus({
-            audioSupported: ['mp3', 'ogg']
-        })
+        audioSupported: ['mp3', 'ogg']
+    })
         .include("Sprites, Scenes, Input, 2D, Anim, Touch, UI, TMX,Audio")
         // Maximize this game to whatever the size of the browser is
         .setup({
@@ -196,8 +196,8 @@ var game = function () {
                         if (this.p.state === "")
                             this.play("stand_" + this.p.direction);
                         else
-                        if (this.p.state === "flying")
-                            this.play("fly_" + this.p.direction);
+                            if (this.p.state === "flying")
+                                this.play("fly_" + this.p.direction);
                     }
                 } else {
                     this.p.vx = 0;
@@ -565,17 +565,6 @@ var game = function () {
             }
         });
 
-        Q.compileSheets("hud.png", "hud.json");
-        Q.Sprite.extend("HUD", {
-            init: function (p) {
-                this._super(p, {
-                    sheet: "hud",
-                    x: 181, // You can also set additional properties that can
-                    y: 202, // be overridden on object creation
-                });
-               
-            }
-        });
         //************************************** */
         Q.scene("endGame", function (stage) {
             //        Q.audio.stop('music_main.mp3');
@@ -604,7 +593,7 @@ var game = function () {
             button.on("click", function () {
                 //           Q.audio.stop();
                 Q.clearStages();
-                Q.stageScene('hud', 1);
+                Q.stageScene('hud');
                 Q.stageScene('level1');
                 Q.state.p.score = 0;
                 //           Q.audio.play('music_main.mp3', {
@@ -614,7 +603,7 @@ var game = function () {
             Q.input.on('confirm', this, () => {
                 Q.audio.stop();
                 Q.clearStages();
-                Q.stageScene('hud', 1);
+                Q.stageScene('hud');
                 Q.stageScene('level1');
                 Q.state.p.score = 0;
                 //              Q.audio.play('music_main.mp3', {
@@ -650,7 +639,7 @@ var game = function () {
             button.on("click", function () {
                 Q.audio.stop();
                 Q.clearStages();
-                Q.stageScene('hud', 1);
+                Q.stageScene('hud');
                 Q.stageScene('level1');
                 Q.state.p.score = 0;
                 //              Q.audio.play('music_main.mp3', {
@@ -661,7 +650,7 @@ var game = function () {
             Q.input.on('confirm', this, () => {
                 Q.audio.stop();
                 Q.clearStages();
-                Q.stageScene('hud', 1);
+                Q.stageScene('hud');
                 Q.stageScene('level1');
                 Q.state.p.score = 0;
                 //             Q.audio.play('music_main.mp3', {
@@ -690,7 +679,7 @@ var game = function () {
 
             button.on("click", function () {
                 Q.clearStages();
-                Q.stageScene('hud', 1);
+                Q.stageScene('hud');
                 Q.stageScene('level1');
                 //           Q.audio.play('music_main.mp3', {
                 //             loop: true
@@ -709,55 +698,34 @@ var game = function () {
 
             container.fit(20);
         });
-       
-       
-        Q.compileSheets("hud.png");
+
+
+        Q.compileSheets("hud.png", "hud.json");
         Q.scene("hud", function (stage) {
-            Q.UI.Text.extend("Score", {
-                init: function (p) {
-                    this._super({
-                        label: "score: 0",
-                        x: 50,
-                        y: 0,
-                        scale: 1 / 2
-                    });
-                    Q.state.on("change.score", this, "score");
+            var container_hud = stage.insert(new Q.UI.Container({
+                x: 124, // You can also set additional properties that can
+                y: 202, // be overridden on object creation
+                w: Q.width,
+                h: 64,
+            }));
 
-                },
-                score: function (score) {
-                    this.p.label = "score: " + score;
-                },
+            var button_hud = container_hud.insert(new Q.UI.Button({
+                x: 0, // You can also set additional properties that can
+                y: 0, // be overridden on object creation
+                sheet: "hud"
+            }));
+            button_hud.on("click", function () {
+                Q.clearStages();
+                Q.stageScene("mainTitle");
             });
+            container_hud.fit(20);
+        });
 
-            Q.UI.Text.extend("cosa", {
-                init: function (p) {
-                    this._super({
-                        x: 70,
-                        y: 245,
-                        sheet: 'hud.png'
-                    });
-
-                }
-            });
-            stage.insert(new Q.Score());
-            stage.insert(new Q.cosa());
-        })
-
-        /* Q.scene("hud1", function(stage){
-             stage.insert(new Q.UI.Container({
-                 x: 70,
-                 y:245,
-                asset: 'hud.png'
- 
-
-             }));
-             
-         })*/
 
         Q.scene("level1", function (stage) {
             Q.stageTMX("kirbyBG.tmx", stage);
             // Create the player and add them to the stage
-            
+
             var player = stage.insert(new Q.Player());
             stage.add("viewport").follow(player, {
                 x: true,
@@ -771,7 +739,7 @@ var game = function () {
                 x: 500,
                 y: 130
             }));
-            var hud = stage.insert(new Q.HUD({}));
+            //var hud = stage.insert(new Q.HUD({}));
             // stage.viewport.scale=2;
         });
         Q.scene("level2", function (stage) {

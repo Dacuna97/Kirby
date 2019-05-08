@@ -171,6 +171,8 @@ var game = function () {
             step: function (dt) {
                 if (this.p.state === "flying")
                     this.p.vy /= 2;
+                if(this.p.power==="fed")
+                    this.p.vx/=3;
                 this.p.reload -= dt;
                 if (this.p.reload < 0)
                     this.p.reload = 0;

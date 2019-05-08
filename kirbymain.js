@@ -4,8 +4,8 @@ var game = function () {
     // the Sprites, Scenes, Input and 2D module. The 2D module
     // includes the `TileLayer` class as well as the `2d` componet.
     var Q = window.Q = Quintus({
-        audioSupported: ['mp3', 'ogg']
-    })
+            audioSupported: ['mp3', 'ogg']
+        })
         .include("Sprites, Scenes, Input, 2D, Anim, Touch, UI, TMX,Audio")
         // Maximize this game to whatever the size of the browser is
         .setup({
@@ -196,8 +196,8 @@ var game = function () {
                         if (this.p.state === "")
                             this.play("stand_" + this.p.direction);
                         else
-                            if (this.p.state === "flying")
-                                this.play("fly_" + this.p.direction);
+                        if (this.p.state === "flying")
+                            this.play("fly_" + this.p.direction);
                     }
                 } else {
                     this.p.vx = 0;
@@ -225,7 +225,7 @@ var game = function () {
                 //when Z or SPACE is pressed
                 if (Q.inputs['fire']) {
                     //if Kirby is not flying and has not started swallowing air
-                    if (this.p.state === "") {
+                    if (this.p.state === "" && this.p.power != "fed") {
                         this.p.state = "swell"; //start swallowing animation
                     }
                     //check if flies higher than possible
@@ -371,10 +371,12 @@ var game = function () {
                                 collision.obj.p.sensor = true;
                                 var aux2 = collision.obj;
                                 this.del('aiBounce');
-
+                                aux2.p.power = "fed";
                                 setTimeout(function () {
                                     aux.destroy();
-                                    aux2.obj.p.sensor = false;
+                                    aux2.p.sensor = false;
+
+
                                 }, 200);
                             } else
                                 this.destroy();
@@ -413,7 +415,27 @@ var game = function () {
                         this.p.direction = direction;
                         this.play("stand_" + this.p.direction);
                         this.p.state = "";
+                        if (this.p.power === "fed") {
+                            this.del("eat");
+                            this.add("fed");
+                            this.p.sheet = "kirbyEat";
+                            this.size(true);
+                        }
                     }
+                }
+            }
+        });
+        Q.component("fed", {
+            extend: {
+                attack: function (stop) {
+                    this.p.sheet = "kirbyR";
+                    this.size(true);
+                    this.play('start_swell_' + this.p.direction);
+                    this.p.power = "eat";
+                    this.del("fed");
+                    this.add("eat");
+                    aux.p.reload = 0.2;
+
                 }
             }
         });

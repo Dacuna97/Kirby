@@ -18,7 +18,7 @@ var game = function () {
 
 
 
-    Q.load("kirby.json,kirby.png,tiles.png,enemy1.png, enemy1.json", function () {
+    Q.load("kirby.json,kirby.png,tiles.png,enemy1.png, enemy1.json, hud.png", function () {
         // Sprites sheets can be created manually
         Q.sheet("tiles", "tiles.png", {
             tilew: 32,
@@ -512,6 +512,7 @@ var game = function () {
             var container = stage.insert(new Q.UI.Container({
                 x: Q.width / 2,
                 y: Q.height / 2,
+               
                 fill: "rgba(0,0,0,0.5)"
             }));
 
@@ -627,7 +628,7 @@ var game = function () {
 
             Q.input.on('confirm', this, () => {
                 Q.clearStages();
-                Q.stageScene('hud', 1);
+                Q.stageScene('hud', 1); 
                 Q.stageScene('level1');
                 Q.audio.play('music_main.mp3', {
                     loop: true
@@ -636,6 +637,7 @@ var game = function () {
 
             container.fit(20);
         });
+        Q.compileSheets("hud.png");
         Q.scene("hud", function (stage) {
             Q.UI.Text.extend("Score", {
                 init: function (p) {
@@ -646,13 +648,37 @@ var game = function () {
                         scale: 1 / 2
                     });
                     Q.state.on("change.score", this, "score");
+                   
                 },
                 score: function (score) {
                     this.p.label = "score: " + score;
                 },
             });
+
+            Q.UI.Text.extend("cosa", {
+                init: function (p) {
+                    this._super({
+                        x: 70,
+                        y:245,
+                       sheet: 'hud.png'
+                    });
+                   
+                }
+            });
             stage.insert(new Q.Score());
+            stage.insert(new Q.cosa());
         })
+        
+       /* Q.scene("hud1", function(stage){
+            stage.insert(new Q.UI.Container({
+                x: 70,
+                y:245,
+               asset: 'hud.png'
+
+            }));
+            
+        })*/
+
         Q.scene("level1", function (stage) {
             Q.stageTMX("kirbyBG.tmx", stage);
             // Create the player and add them to the stage

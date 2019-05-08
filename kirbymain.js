@@ -162,7 +162,8 @@ var game = function () {
                     state: "",
                     power: "eat",
                     swell_time: 0,
-                    reload: 0
+                    reload: 0,
+                    sensor:false
                 });
                 this.add('2d, platformerControls, animation, eat');
 
@@ -350,8 +351,6 @@ var game = function () {
         });
         Q.component("enemy", {
             added: function () {
-              //  this.entity.p.sensor=false
-
                 this.entity.on("hit.sprite", function (collision) {
                     if (collision.obj.state === "attack") {
                         //    collision.distance += 16;
@@ -366,15 +365,17 @@ var game = function () {
                                 else
                                     this.p.vx = -100;
 
-                               
+
                                 var aux = this;
-                                
-                                this.p.sensor= true,
-                                this.del('aiBounce');
+
+                                collision.obj.p.sensor=true;
+                                var aux2=collision.obj;
+                                    this.del('aiBounce');
 
                                 setTimeout(function () {
                                     aux.destroy();
-                                }, 3000);
+                                    aux2.obj.p.sensor=false;
+                                }, 200);
                             } else
                                 this.destroy();
                         } else {
@@ -473,7 +474,7 @@ var game = function () {
                     x: p.x, // You can also set additional properties that can
                     y: p.y, // be overridden on object creation
                     vx: 40,
-                    sensor: false,
+                    sensor: true,
                     dead: false
                 });
                 this.add('2d,aiBounce,enemy,animation');
@@ -570,7 +571,7 @@ var game = function () {
             var container = stage.insert(new Q.UI.Container({
                 x: Q.width / 2,
                 y: Q.height / 2,
-               
+
                 fill: "rgba(0,0,0,0.5)"
             }));
 
@@ -686,7 +687,7 @@ var game = function () {
 
             Q.input.on('confirm', this, () => {
                 Q.clearStages();
-                Q.stageScene('hud', 1); 
+                Q.stageScene('hud', 1);
                 Q.stageScene('level1');
                 Q.audio.play('music_main.mp3', {
                     loop: true
@@ -706,7 +707,7 @@ var game = function () {
                         scale: 1 / 2
                     });
                     Q.state.on("change.score", this, "score");
-                   
+
                 },
                 score: function (score) {
                     this.p.label = "score: " + score;
@@ -717,25 +718,25 @@ var game = function () {
                 init: function (p) {
                     this._super({
                         x: 70,
-                        y:245,
-                       sheet: 'hud.png'
+                        y: 245,
+                        sheet: 'hud.png'
                     });
-                   
+
                 }
             });
             stage.insert(new Q.Score());
             stage.insert(new Q.cosa());
         })
-        
-       /* Q.scene("hud1", function(stage){
-            stage.insert(new Q.UI.Container({
-                x: 70,
-                y:245,
-               asset: 'hud.png'
 
-            }));
-            
-        })*/
+        /* Q.scene("hud1", function(stage){
+             stage.insert(new Q.UI.Container({
+                 x: 70,
+                 y:245,
+                asset: 'hud.png'
+
+             }));
+             
+         })*/
 
         Q.scene("level1", function (stage) {
             Q.stageTMX("kirbyBG.tmx", stage);

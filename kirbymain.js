@@ -163,7 +163,7 @@ var game = function () {
                     power: "eat",
                     swell_time: 0,
                     reload: 0,
-                    sensor:false
+                    sensor: false
                 });
                 this.add('2d, platformerControls, animation, eat');
 
@@ -368,13 +368,13 @@ var game = function () {
 
                                 var aux = this;
 
-                                collision.obj.p.sensor=true;
-                                var aux2=collision.obj;
-                                    this.del('aiBounce');
+                                collision.obj.p.sensor = true;
+                                var aux2 = collision.obj;
+                                this.del('aiBounce');
 
                                 setTimeout(function () {
                                     aux.destroy();
-                                    aux2.obj.p.sensor=false;
+                                    aux2.obj.p.sensor = false;
                                 }, 200);
                             } else
                                 this.destroy();

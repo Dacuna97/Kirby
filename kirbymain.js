@@ -4,8 +4,8 @@ var game = function () {
     // the Sprites, Scenes, Input and 2D module. The 2D module
     // includes the `TileLayer` class as well as the `2d` componet.
     var Q = window.Q = Quintus({
-        audioSupported: ['mp3', 'ogg']
-    })
+            audioSupported: ['mp3', 'ogg']
+        })
         .include("Sprites, Scenes, Input, 2D, Anim, Touch, UI, TMX,Audio")
         // Maximize this game to whatever the size of the browser is
         .setup({
@@ -160,8 +160,10 @@ var game = function () {
                     x: 180, // You can also set additional properties that can
                     y: -10, // be overridden on object creation
                     state: "",
+                    power: "eat",
                     swell_time: 0,
-                    reload: 0
+                    reload: 0,
+                    sensor: false
                 });
                 this.add('2d, platformerControls, animation, eat');
 
@@ -194,8 +196,8 @@ var game = function () {
                         if (this.p.state === "")
                             this.play("stand_" + this.p.direction);
                         else
-                            if (this.p.state === "flying")
-                                this.play("fly_" + this.p.direction);
+                        if (this.p.state === "flying")
+                            this.play("fly_" + this.p.direction);
                     }
                 } else {
                     this.p.vx = 0;
@@ -258,8 +260,7 @@ var game = function () {
                         if (Q.state.get("level") == 1) {
                             Q.state.inc("level", 1);
                             Q.stageScene('level2');
-                        }
-                        else {
+                        } else {
                             Q.stageScene("endGame", 1, {
                                 label: "You Win"
                             });
@@ -352,13 +353,32 @@ var game = function () {
             added: function () {
                 this.entity.on("hit.sprite", function (collision) {
                     if (collision.obj.state === "attack") {
-                        collision.distance += 16;
+                        //    collision.distance += 16;
                     }
-                    if (collision.obj.isA("Player") && collision.obj.p.state != "dead") {
+                    if (collision.obj.isA("Player") && collision.obj.p.state != "dead" && !this.p.dead) {
                         if (collision.obj.p.state === "attack" || collision.obj.p.state === "kick") {
-                            this.destroy();
-                        }
-                        else {
+                            if (collision.obj.p.power === "eat") {
+                                this.p.dead = true;
+
+                                if (this.p.x < collision.obj.p.x)
+                                    this.p.vx = 100;
+                                else
+                                    this.p.vx = -100;
+
+
+                                var aux = this;
+
+                                collision.obj.p.sensor = true;
+                                var aux2 = collision.obj;
+                                this.del('aiBounce');
+
+                                setTimeout(function () {
+                                    aux.destroy();
+                                    aux2.obj.p.sensor = false;
+                                }, 200);
+                            } else
+                                this.destroy();
+                        } else {
                             collision.obj.play("die");
                             collision.obj.p.state = "dead";
                             collision.obj.p.vy = -500;
@@ -454,15 +474,18 @@ var game = function () {
                     x: p.x, // You can also set additional properties that can
                     y: p.y, // be overridden on object creation
                     vx: 40,
+                    sensor: true,
                     dead: false
                 });
                 this.add('2d,aiBounce,enemy,animation');
             },
             step: function (dt) {
-                if (this.p.vx > 0)
-                    this.play("run_left");
-                else {
-                    this.play("run_right");
+                if (!this.p.dead) {
+                    if (this.p.vx > 0)
+                        this.play("run_left");
+                    else {
+                        this.play("run_right");
+                    }
                 }
             }
         });
@@ -686,15 +709,53 @@ var game = function () {
 
             container.fit(20);
         });
+<<<<<<< HEAD
        
        
+=======
+        Q.compileSheets("hud.png");
+        Q.scene("hud", function (stage) {
+            Q.UI.Text.extend("Score", {
+                init: function (p) {
+                    this._super({
+                        label: "score: 0",
+                        x: 50,
+                        y: 0,
+                        scale: 1 / 2
+                    });
+                    Q.state.on("change.score", this, "score");
+
+                },
+                score: function (score) {
+                    this.p.label = "score: " + score;
+                },
+            });
+
+            Q.UI.Text.extend("cosa", {
+                init: function (p) {
+                    this._super({
+                        x: 70,
+                        y: 245,
+                        sheet: 'hud.png'
+                    });
+
+                }
+            });
+            stage.insert(new Q.Score());
+            stage.insert(new Q.cosa());
+        })
+>>>>>>> 98db8a6594754bb702930026ca2e120c6f31fe3b
 
         /* Q.scene("hud1", function(stage){
              stage.insert(new Q.UI.Container({
                  x: 70,
                  y:245,
                 asset: 'hud.png'
+<<<<<<< HEAD
  
+=======
+
+>>>>>>> 98db8a6594754bb702930026ca2e120c6f31fe3b
              }));
              
          })*/

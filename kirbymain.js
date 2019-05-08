@@ -10,15 +10,15 @@ var game = function () {
         // Maximize this game to whatever the size of the browser is
         .setup({
             scaleToFit: true,
-            width: 340,
-            height: 255
+            width: 247,
+            height: 234
         })
         // And turn on default input controls and touch input (for UI)
         .controls().touch().enableSound();
 
 
 
-    Q.load("kirby.json,kirby.png,tiles.png,enemy1.png, enemy1.json, hud.png, enemy_spark.png, enemy_spark.json", function () {
+    Q.load("kirby.json,kirby.png,tiles.png,enemy1.png, enemy1.json, hud.png, hud.json, enemy_spark.png, enemy_spark.json", function () {
         // Sprites sheets can be created manually
         Q.sheet("tiles", "tiles.png", {
             tilew: 32,
@@ -503,6 +503,7 @@ var game = function () {
             },
 
         });
+
         Q.compileSheets("enemy_spark.png", "enemy_spark.json");
 
         Q.animations('enemy_spark_anim', {
@@ -540,6 +541,18 @@ var game = function () {
                 }
             }
         });
+
+        Q.compileSheets("hud.png", "hud.json");
+        Q.Sprite.extend("HUD", {
+            init: function (p) {
+                this._super(p, {
+                    sheet: "hud",
+                    x: 181, // You can also set additional properties that can
+                    y: 202, // be overridden on object creation
+                });
+               
+            }
+        });
         //************************************** */
         Q.scene("endGame", function (stage) {
             //        Q.audio.stop('music_main.mp3');
@@ -548,7 +561,7 @@ var game = function () {
             var container = stage.insert(new Q.UI.Container({
                 x: Q.width / 2,
                 y: Q.height / 2,
-               
+
                 fill: "rgba(0,0,0,0.5)"
             }));
 
@@ -664,7 +677,7 @@ var game = function () {
 
             Q.input.on('confirm', this, () => {
                 Q.clearStages();
-                Q.stageScene('hud', 1); 
+                Q.stageScene('hud', 1);
                 Q.stageScene('level1');
                 Q.audio.play('music_main.mp3', {
                     loop: true
@@ -673,52 +686,23 @@ var game = function () {
 
             container.fit(20);
         });
-        Q.compileSheets("hud.png");
-        Q.scene("hud", function (stage) {
-            Q.UI.Text.extend("Score", {
-                init: function (p) {
-                    this._super({
-                        label: "score: 0",
-                        x: 50,
-                        y: 0,
-                        scale: 1 / 2
-                    });
-                    Q.state.on("change.score", this, "score");
-                   
-                },
-                score: function (score) {
-                    this.p.label = "score: " + score;
-                },
-            });
+       
+       
 
-            Q.UI.Text.extend("cosa", {
-                init: function (p) {
-                    this._super({
-                        x: 70,
-                        y:245,
-                       sheet: 'hud.png'
-                    });
-                   
-                }
-            });
-            stage.insert(new Q.Score());
-            stage.insert(new Q.cosa());
-        })
-        
-       /* Q.scene("hud1", function(stage){
-            stage.insert(new Q.UI.Container({
-                x: 70,
-                y:245,
-               asset: 'hud.png'
-
-            }));
-            
-        })*/
+        /* Q.scene("hud1", function(stage){
+             stage.insert(new Q.UI.Container({
+                 x: 70,
+                 y:245,
+                asset: 'hud.png'
+ 
+             }));
+             
+         })*/
 
         Q.scene("level1", function (stage) {
             Q.stageTMX("kirbyBG.tmx", stage);
             // Create the player and add them to the stage
-
+            
             var player = stage.insert(new Q.Player());
             stage.add("viewport").follow(player, {
                 x: true,
@@ -732,6 +716,7 @@ var game = function () {
                 x: 500,
                 y: 130
             }));
+            var hud = stage.insert(new Q.HUD({}));
             // stage.viewport.scale=2;
         });
         Q.scene("level2", function (stage) {

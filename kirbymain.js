@@ -430,9 +430,16 @@ var game = function () {
         Q.compileSheets("enemy1.png", "enemy1.json");
 
         Q.animations('enemy1_anim', {
-            run: {
+            run_right: {
                 frames: [0, 1],
                 rate: 1 / 10,
+                flip: false,
+                loop: true
+            },
+            run_left: {
+                frames: [0, 1],
+                rate: 1 / 10,
+                flip: "x",
                 loop: true
             }
         });
@@ -452,8 +459,11 @@ var game = function () {
                 this.add('2d,aiBounce,enemy,animation');
             },
             step: function (dt) {
-                if (this.p.vx > 0 || this.p.vx < 0)
-                    this.play("run");
+                if (this.p.vx > 0)
+                    this.play("run_left");
+                else {
+                    this.play("run_right");
+                }
             }
         });
 

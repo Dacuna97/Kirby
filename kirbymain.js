@@ -718,7 +718,6 @@ var game = function () {
                 Q.clearStages();
                 Q.stageScene("mainTitle");
             });
-            container_hud.fit(20);
         });
 
 

@@ -11,14 +11,14 @@ var game = function () {
         .setup({
             scaleToFit: true,
             width: 340,
-            height: 170
+            height: 255
         })
         // And turn on default input controls and touch input (for UI)
         .controls().touch().enableSound();
 
 
 
-    Q.load("kirby.json,kirby.png,tiles.png,enemy1.png, enemy1.json", function () {
+    Q.load("kirby.json,kirby.png,tiles.png,enemy1.png, enemy1.json, hud.png, enemy_spark.png, enemy_spark.json", function () {
         // Sprites sheets can be created manually
         Q.sheet("tiles", "tiles.png", {
             tilew: 32,
@@ -135,13 +135,13 @@ var game = function () {
             },
             eat_right: {
                 frames: [0, 1, 2],
-                rate: 1 / 100,
+                rate: 1 / 8,
                 flip: false,
                 loop: true
             },
             eat_left: {
                 frames: [0, 1, 2],
-                rate: 1 / 100,
+                rate: 1 / 8,
                 flip: "x",
                 loop: true
             },
@@ -525,7 +525,43 @@ var game = function () {
             },
 
         });
+        Q.compileSheets("enemy_spark.png", "enemy_spark.json");
 
+        Q.animations('enemy_spark_anim', {
+            move_right: {
+                frames: [0, 1, 2],
+                rate: 1 / 10,
+                flip: "x",
+                loop: true
+            },
+            move_left: {
+                frames: [0, 1, 2],
+                rate: 1 / 10,
+                flip: false,
+                loop: true
+            }
+        });
+        Q.Sprite.extend("EnemySpark", {
+
+            init: function (p) {
+                this._super(p, {
+                    sprite: "enemy_spark_anim",
+                    sheet: "enemy_spark", // Setting a sprite sheet sets sprite width and height
+                    x: p.x, // You can also set additional properties that can
+                    y: p.y, // be overridden on object creation
+                    vx: 40,
+                    dead: false
+                });
+                this.add('2d,aiBounce,enemy,animation,tween');
+            },
+            step: function (dt) {
+                if (this.p.vx > 0)
+                    this.play("move_left");
+                else {
+                    this.play("move_right");
+                }
+            }
+        });
         //************************************** */
         Q.scene("endGame", function (stage) {
             //        Q.audio.stop('music_main.mp3');
@@ -534,6 +570,7 @@ var game = function () {
             var container = stage.insert(new Q.UI.Container({
                 x: Q.width / 2,
                 y: Q.height / 2,
+               
                 fill: "rgba(0,0,0,0.5)"
             }));
 
@@ -649,7 +686,7 @@ var game = function () {
 
             Q.input.on('confirm', this, () => {
                 Q.clearStages();
-                Q.stageScene('hud', 1);
+                Q.stageScene('hud', 1); 
                 Q.stageScene('level1');
                 Q.audio.play('music_main.mp3', {
                     loop: true
@@ -658,6 +695,7 @@ var game = function () {
 
             container.fit(20);
         });
+        Q.compileSheets("hud.png");
         Q.scene("hud", function (stage) {
             Q.UI.Text.extend("Score", {
                 init: function (p) {
@@ -668,13 +706,37 @@ var game = function () {
                         scale: 1 / 2
                     });
                     Q.state.on("change.score", this, "score");
+                   
                 },
                 score: function (score) {
                     this.p.label = "score: " + score;
                 },
             });
+
+            Q.UI.Text.extend("cosa", {
+                init: function (p) {
+                    this._super({
+                        x: 70,
+                        y:245,
+                       sheet: 'hud.png'
+                    });
+                   
+                }
+            });
             stage.insert(new Q.Score());
+            stage.insert(new Q.cosa());
         })
+        
+       /* Q.scene("hud1", function(stage){
+            stage.insert(new Q.UI.Container({
+                x: 70,
+                y:245,
+               asset: 'hud.png'
+
+            }));
+            
+        })*/
+
         Q.scene("level1", function (stage) {
             Q.stageTMX("kirbyBG.tmx", stage);
             // Create the player and add them to the stage
@@ -686,6 +748,10 @@ var game = function () {
             });
             stage.insert(new Q.Enemy1({
                 x: 250,
+                y: 130
+            }));
+            stage.insert(new Q.EnemySpark({
+                x: 500,
                 y: 130
             }));
             // stage.viewport.scale=2;

@@ -709,10 +709,8 @@ var game = function () {
 
             container.fit(20);
         });
-<<<<<<< HEAD
        
        
-=======
         Q.compileSheets("hud.png");
         Q.scene("hud", function (stage) {
             Q.UI.Text.extend("Score", {
@@ -744,18 +742,14 @@ var game = function () {
             stage.insert(new Q.Score());
             stage.insert(new Q.cosa());
         })
->>>>>>> 98db8a6594754bb702930026ca2e120c6f31fe3b
 
         /* Q.scene("hud1", function(stage){
              stage.insert(new Q.UI.Container({
                  x: 70,
                  y:245,
                 asset: 'hud.png'
-<<<<<<< HEAD
  
-=======
 
->>>>>>> 98db8a6594754bb702930026ca2e120c6f31fe3b
              }));
              
          })*/

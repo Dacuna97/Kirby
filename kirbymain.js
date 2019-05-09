@@ -4,8 +4,8 @@ var game = function () {
     // the Sprites, Scenes, Input and 2D module. The 2D module
     // includes the `TileLayer` class as well as the `2d` componet.
     var Q = window.Q = Quintus({
-            audioSupported: ['mp3', 'ogg']
-        })
+        audioSupported: ['mp3', 'ogg']
+    })
         .include("Sprites, Scenes, Input, 2D, Anim, Touch, UI, TMX,Audio")
         // Maximize this game to whatever the size of the browser is
         .setup({
@@ -178,7 +178,7 @@ var game = function () {
                 if (this.p.reload < 0)
                     this.p.reload = 0;
                 this.p.invincible -= dt;
-                if (this.p.invincible < 0) {
+                if (this.p.invincible < 0 && this.p.power != "fed") {
                     this.p.invincible = 0;
                     this.p.sensor = false;
                     this.add("platformerControls");
@@ -186,28 +186,28 @@ var game = function () {
                 if (this.p.vy >= 0)
                     this.p.vx /= 2;
                 if (this.p.state != "dead") {
-                    if (this.p.vy < 0 && this.p.state === "") { //jump
-                        this.play("jump_" + this.p.direction);
-                    } else if (this.p.vy > 0 && this.p.state === "") {
-                        this.play("fall_" + this.p.direction);
-                        //if dies
-                        if (this.p.y > 580) {
-                            this.play("die");
-                            this.p.state = "dead";
-                            Q.stageScene("endGame", 3, {
-                                label: "You Died"
-                            });
-                        }
-                    } else if (this.p.vx > 0 && this.p.vy == 0 && this.p.state === "") {
-                        this.play("run_right");
-                    } else if (this.p.vx < 0 && this.p.vy == 0 && this.p.state === "") {
-                        this.play("run_left");
-                    } else {
-                        if (this.p.state === "")
+                    if (this.p.state === "flying") {
+                        this.play("fly_" + this.p.direction);
+                    } else if (this.p.state != "attack") {
+                        if (this.p.vy < 0 && this.p.state === "") { //jump
+                            this.play("jump_" + this.p.direction);
+                        } else if (this.p.vy > 0 && this.p.state === "") {
+                            this.play("fall_" + this.p.direction);
+                            //if dies
+                            if (this.p.y > 580) {
+                                this.play("die");
+                                this.p.state = "dead";
+                                Q.stageScene("endGame", 3, {
+                                    label: "You Died"
+                                });
+                            }
+                        } else if (this.p.vx > 0 && this.p.vy == 0 && this.p.state === "") {
+                            this.play("run_right");
+                        } else if (this.p.vx < 0 && this.p.vy == 0 && this.p.state === "") {
+                            this.play("run_left");
+                        } else {
                             this.play("stand_" + this.p.direction);
-                        else
-                        if (this.p.state === "flying")
-                            this.play("fly_" + this.p.direction);
+                        }
                     }
                 } else {
                     this.p.vx = 0;
@@ -446,7 +446,7 @@ var game = function () {
                         if (this.p.power === "fed") {
                             this.del("eat");
                             this.add("fed");
-                            this.p.sheet = "kirbyEat";
+                            this.p.sheet = "kirbyFed";
                             this.size(true);
                         }
                     }
@@ -462,7 +462,7 @@ var game = function () {
                     this.p.power = "eat";
                     this.del("fed");
                     this.add("eat");
-                    aux.p.reload = 0.2;
+                    this.p.reload = 0.2;
 
                 }
             }

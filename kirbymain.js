@@ -18,7 +18,7 @@ var game = function () {
 
 
 
-    Q.load("kirby.json,kirby.png,tiles.png,enemy1.png, enemy1.json, hud.png, hud.json, enemy_spark.png, enemy_spark.json", function () {
+    Q.load("kirby.json,kirby.png,tiles.png,enemy1.png, enemy1.json, hud.png, hud.json,scoreElem.png, kirbyElem.png, enemy_spark.png, enemy_spark.json", function () {
         // Sprites sheets can be created manually
         Q.sheet("tiles", "tiles.png", {
             tilew: 32,
@@ -589,6 +589,26 @@ var game = function () {
             }
         });
 
+        Q.compileSheets("scoreElem.png");
+       
+        Q.Sprite.extend("ScoreE",{
+            init: function(p) {
+                this._super(p, {
+                    asset: "scoreElem.png",
+                });
+            }
+        });
+        Q.compileSheets("kirbyElem.png");
+       
+        Q.Sprite.extend("KirbyE",{
+            init: function(p) {
+                this._super(p, {
+                    asset: "kirbyElem.png",
+                  
+                });
+            }
+        });
+
         //************************************** */
         Q.scene("endGame", function (stage) {
             //        Q.audio.stop('music_main.mp3');
@@ -618,6 +638,7 @@ var game = function () {
                 //           Q.audio.stop();
                 Q.clearStages();
                 Q.stageScene('hud');
+                Q.stageScene('hudsElements');
                 Q.stageScene('level1');
                 Q.state.p.score = 0;
                 //           Q.audio.play('music_main.mp3', {
@@ -628,6 +649,7 @@ var game = function () {
                 Q.audio.stop();
                 Q.clearStages();
                 Q.stageScene('hud', 1);
+                Q.stageScene('hudsElements', 2);
                 Q.stageScene('level1');
                 Q.state.p.score = 0;
                 //              Q.audio.play('music_main.mp3', {
@@ -637,6 +659,7 @@ var game = function () {
             container.fit(20);
         });
 
+        //************not used***********//
         Q.scene("winGame", function (stage) {
             //          Q.audio.stop('music_main.mp3');
             //        Q.audio.play('music_level_complete.mp3');
@@ -704,6 +727,7 @@ var game = function () {
             button.on("click", function () {
                 Q.clearStages();
                 Q.stageScene('hud');
+                Q.stageScene('hudsElements');
                 Q.stageScene('level1');
                 //           Q.audio.play('music_main.mp3', {
                 //             loop: true
@@ -714,6 +738,7 @@ var game = function () {
             Q.input.on('confirm', this, () => {
                 Q.clearStages();
                 Q.stageScene('hud', 1);
+                Q.stageScene('hudsElements', 2);
                 Q.stageScene('level1');
                 Q.audio.play('music_main.mp3', {
                     loop: true
@@ -739,11 +764,16 @@ var game = function () {
                 sheet: "hud"
             }));
             button_hud.on("click", function () {
-                Q.clearStages();
-                Q.stageScene("mainTitle");
+                //Q.clearStages();
+                //Q.stageScene("mainTitle");
             });
         });
 
+        Q.scene("hudsElements", function(stage){
+           
+            stage.insert(new Q.KirbyE({x:39, y:190}));
+            stage.insert(new Q.ScoreE({x:39, y:206}));
+        });
 
         Q.scene("level1", function (stage) {
             Q.stageTMX("kirbyBG.tmx", stage);
@@ -764,6 +794,7 @@ var game = function () {
             }));
             //var hud = stage.insert(new Q.HUD({}));
             // stage.viewport.scale=2;
+            
         });
         Q.scene("level2", function (stage) {
             Q.stageTMX("kirbyBG2.tmx", stage);

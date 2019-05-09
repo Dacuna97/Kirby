@@ -18,7 +18,7 @@ var game = function () {
 
 
 
-    Q.load("kirby.json,kirby.png,tiles.png,enemy1.png, enemy1.json, hud.png, hud.json,scoreElem.png, kirbyElem.png, enemy_spark.png, enemy_spark.json", function () {
+    Q.load("kirby.json,kirby.png,tiles.png,enemy1.png, enemy1.json, hud.png, hud.json,scoreElem.png, kirbyElem.png, livesElem.json, livesElem.png, enemy_spark.png, enemy_spark.json", function () {
         // Sprites sheets can be created manually
         Q.sheet("tiles", "tiles.png", {
             tilew: 32,
@@ -608,6 +608,23 @@ var game = function () {
                 });
             }
         });
+        Q.compileSheets("livesElem.png", "livesElem.json");
+        Q.animations('lives_anim', {
+            l: {frames:[0,1], rate: 1/3, loop: false}
+        })
+        Q.Sprite.extend("LivesE",{
+            init: function(p) {
+                this._super(p, {
+                   sheet: "lives",
+                   sprite: "lives_anim"
+                  
+                });
+                this.add('animation,tween');
+            },
+            step: function (dt) {
+               this.play("l");
+            }
+        });
 
         //************************************** */
         Q.scene("endGame", function (stage) {
@@ -697,7 +714,7 @@ var game = function () {
             Q.input.on('confirm', this, () => {
                 Q.audio.stop();
                 Q.clearStages();
-                Q.stageScene('hud');
+                Q.stageScene('hud', 1);
                 Q.stageScene('level1');
                 Q.state.p.score = 0;
                 //             Q.audio.play('music_main.mp3', {
@@ -773,6 +790,7 @@ var game = function () {
            
             stage.insert(new Q.KirbyE({x:39, y:190}));
             stage.insert(new Q.ScoreE({x:39, y:206}));
+            stage.insert(new Q.LivesE({x:193, y:196}));
         });
 
         Q.scene("level1", function (stage) {

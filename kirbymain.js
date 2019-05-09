@@ -18,7 +18,7 @@ var game = function () {
 
 
 
-    Q.load("kirby.json,kirby.png,tiles.png,enemy1.png, enemy1.json, hud.png, hud.json,scoreElem.png, kirbyElem.png, livesElem.json, livesElem.png, enemy_spark.png, enemy_spark.json", function () {
+    Q.load("kirby.json,kirby.png,tiles.png,enemy1.png, enemy1.json, hud.png, hud.json,health.png, health.json,scoreElem.png, kirbyElem.png, livesElem.json, livesElem.png, enemy_spark.png, enemy_spark.json", function () {
         // Sprites sheets can be created manually
         Q.sheet("tiles", "tiles.png", {
             tilew: 32,
@@ -383,6 +383,9 @@ var game = function () {
                             } else
                                 this.destroy();
                         } else {
+                            Q.state.p.health = Q.state.get("health") - 1;
+                           if(Q.state.get("health") == 0){
+
                             collision.obj.play("die");
                             collision.obj.p.state = "dead";
                             collision.obj.p.vy = -500;
@@ -390,6 +393,9 @@ var game = function () {
                             Q.stageScene("endGame", 1, {
                                 label: "You Died"
                             });
+                           }
+
+        
                         }
                         //collision.obj.destroy();
                     }
@@ -626,6 +632,38 @@ var game = function () {
             }
         });
 
+        Q.compileSheets("health.png", "health.json");
+        Q.animations('health_anim', {
+            h6: {frames:[0], rate: 1/3, loop: false},
+            h5: {frames:[1], rate: 1/3, loop: false},
+            h4: {frames:[2], rate: 1/3, loop: false},
+            h3: {frames:[3], rate: 1/3, loop: false},
+            h2: {frames:[4], rate: 1/3, loop: false},
+            h1: {frames:[5], rate: 1/3, loop: false},
+            h0: {frames:[6], rate: 1/3, loop: false}
+        })
+        Q.Sprite.extend("HealthE",{
+            init: function(p) {
+                this._super(p, {
+                   sheet: "health",
+                   sprite: "health_anim"
+                  
+                });
+                this.add('animation,tween');
+            },
+            step: function(dt) {
+            
+                switch (Q.state.get("health")) {
+                    case 0:this.play("h0");break;
+                    case 1:this.play("h1");break;
+                    case 2:this.play("h2");break;
+                    case 3:this.play("h3");break;
+                    case 4:this.play("h4");break;
+                    case 5: this.play("h5");break;
+                    case 6: this.play("h6");break;
+                  }
+            }
+        });
         //************************************** */
         Q.scene("endGame", function (stage) {
             //        Q.audio.stop('music_main.mp3');
@@ -658,6 +696,7 @@ var game = function () {
                 Q.stageScene('hudsElements');
                 Q.stageScene('level1');
                 Q.state.p.score = 0;
+                Q.state.p.health = 6;
                 //           Q.audio.play('music_main.mp3', {
                 //             loop: true
                 //       });
@@ -669,6 +708,7 @@ var game = function () {
                 Q.stageScene('hudsElements', 2);
                 Q.stageScene('level1');
                 Q.state.p.score = 0;
+                Q.state.p.health = 6;
                 //              Q.audio.play('music_main.mp3', {
                 //                loop: true
                 //          });
@@ -706,6 +746,7 @@ var game = function () {
                 Q.stageScene('hud');
                 Q.stageScene('level1');
                 Q.state.p.score = 0;
+                Q.state.p.health = 6;
                 //              Q.audio.play('music_main.mp3', {
                 //                loop: true
                 //          });
@@ -717,6 +758,7 @@ var game = function () {
                 Q.stageScene('hud', 1);
                 Q.stageScene('level1');
                 Q.state.p.score = 0;
+                Q.state.p.health = 6;
                 //             Q.audio.play('music_main.mp3', {
                 //                loop: true
                 //          });
@@ -791,6 +833,7 @@ var game = function () {
             stage.insert(new Q.KirbyE({x:39, y:190}));
             stage.insert(new Q.ScoreE({x:39, y:206}));
             stage.insert(new Q.LivesE({x:193, y:196}));
+            stage.insert(new Q.HealthE({x: 95, y:190}));
         });
 
         Q.scene("level1", function (stage) {
@@ -802,7 +845,7 @@ var game = function () {
                 x: true,
                 y: false
             });
-            stage.insert(new Q.Enemy1({
+           stage.insert(new Q.Enemy1({
                 x: 250,
                 y: 130
             }));
@@ -828,7 +871,8 @@ var game = function () {
         Q.loadTMX("kirbyBG.tmx, kirbyBG2.tmx", function () {
             Q.state.reset({
                 level: 1,
-                score: 0
+                score: 0,
+                health: 6
             });
             Q.stageScene("mainTitle");
         });

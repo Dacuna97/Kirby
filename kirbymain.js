@@ -170,8 +170,10 @@ var game = function () {
 
             },
             step: function (dt) {
-                if (this.p.state === "flying")
+                if (this.p.state === "flying"){
                     this.p.vy /= 2;
+                    this.p.vx /= 2;
+                }
                 if (this.p.power === "fed")
                     this.p.vx /= 3;
                 this.p.reload -= dt;
@@ -201,13 +203,15 @@ var game = function () {
                                     label: "You Died"
                                 });
                             }
-                        } else if (this.p.vx > 0 && this.p.vy == 0 && this.p.state === "") {
+                        } else if (this.p.vx > 0 && this.p.vy == 0) {
                             this.play("run_right");
-                        } else if (this.p.vx < 0 && this.p.vy == 0 && this.p.state === "") {
+                        } else if (this.p.vx < 0 && this.p.vy == 0 ) {
                             this.play("run_left");
                         } else {
                             this.play("stand_" + this.p.direction);
                         }
+                    } else {
+                        this.play(this.p.power + "_" + this.p.direction);
                     }
                 } else {
                     this.p.vx = 0;
@@ -231,7 +235,7 @@ var game = function () {
                 this.swell_animation(dt);
                 this.unswell_animation(dt);
                 this.kick();
-                this.checkCollision();
+
 
                 //when Z or SPACE is pressed
                 if (Q.inputs['fire']) {
@@ -358,9 +362,7 @@ var game = function () {
                     }
                 }
             },
-            checkCollision: function () {
 
-            }
 
         });
         Q.component("enemy", {
@@ -430,9 +432,11 @@ var game = function () {
             extend: {
                 attack: function (stop) {
                     if (!stop) {
+                        let direction = this.p.direction;
                         this.del("platformerControls");
                         this.p.state = "attack";
                         this.p.sheet = "kirbyEat";
+                        this.p.direction = direction;
                         this.size(true);
                         this.play("eat_" + this.p.direction);
                     } else {

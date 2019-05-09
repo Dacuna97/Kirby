@@ -204,7 +204,7 @@ var game = function () {
                 } else {
                     this.p.vx = 0;
                 }
-                if (this.p.x >= 848.400 || this.p.x <= 180)
+                if (this.p.x >= 878.400 || this.p.x <= 180)
                     this.stage.unfollow();
                 else
                     this.stage.follow(this, {
@@ -627,7 +627,7 @@ var game = function () {
             Q.input.on('confirm', this, () => {
                 Q.audio.stop();
                 Q.clearStages();
-                Q.stageScene('hud');
+                Q.stageScene('hud', 1);
                 Q.stageScene('level1');
                 Q.state.p.score = 0;
                 //              Q.audio.play('music_main.mp3', {

@@ -3,6 +3,7 @@
 	"kirbyFly":{"sx":158,"sy":1,"tileW":24,"tileH":23,"frames":3},
 	"kirbySwell":{"sx":143,"sy":1,"tileW":16,"tileH":23,"frames":1},
 	"kirbykick":{"sx":253,"sy":1.8,"tileW":24,"tileH":16,"frames":1},
-	"kirbyEat": {"sx":143,"sy":24,"tileW":41,"tileH":22,"frames":3}
+	"kirbyEat": {"sx":143,"sy":24,"tileW":41,"tileH":22,"frames":3},
+	"kirbyFed": {"sx":0,"sy":17,"tileW":24,"tileH":22,"frames":6}
 
 }

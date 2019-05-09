@@ -11,14 +11,14 @@ var game = function () {
         .setup({
             scaleToFit: true,
             width: 247,
-            height: 234
+            height: 230
         })
         // And turn on default input controls and touch input (for UI)
         .controls().touch().enableSound();
 
 
 
-    Q.load("kirby.json,kirby.png,tiles.png,enemy1.png, enemy1.json, hud.png, hud.json, enemy_spark.png, enemy_spark.json", function () {
+    Q.load("kirby.json,kirby.png,tiles.png, enemy1.png, enemy1.json, hud.png, hud.json, enemy_spark.png, enemy_spark.json", function () {
         // Sprites sheets can be created manually
         Q.sheet("tiles", "tiles.png", {
             tilew: 32,
@@ -533,13 +533,13 @@ var game = function () {
             move_right: {
                 frames: [0, 1, 2],
                 rate: 1 / 10,
-                flip: "x",
+                flip: false,
                 loop: true
             },
             move_left: {
                 frames: [0, 1, 2],
                 rate: 1 / 10,
-                flip: false,
+                flip: "x",
                 loop: true
             }
         });
@@ -593,7 +593,7 @@ var game = function () {
             button.on("click", function () {
                 //           Q.audio.stop();
                 Q.clearStages();
-                Q.stageScene('hud');
+                Q.stageScene('hud', 1);
                 Q.stageScene('level1');
                 Q.state.p.score = 0;
                 //           Q.audio.play('music_main.mp3', {
@@ -603,7 +603,7 @@ var game = function () {
             Q.input.on('confirm', this, () => {
                 Q.audio.stop();
                 Q.clearStages();
-                Q.stageScene('hud');
+                Q.stageScene('hud', 1);
                 Q.stageScene('level1');
                 Q.state.p.score = 0;
                 //              Q.audio.play('music_main.mp3', {
@@ -639,7 +639,7 @@ var game = function () {
             button.on("click", function () {
                 Q.audio.stop();
                 Q.clearStages();
-                Q.stageScene('hud');
+                Q.stageScene('hud', 1);
                 Q.stageScene('level1');
                 Q.state.p.score = 0;
                 //              Q.audio.play('music_main.mp3', {
@@ -650,7 +650,7 @@ var game = function () {
             Q.input.on('confirm', this, () => {
                 Q.audio.stop();
                 Q.clearStages();
-                Q.stageScene('hud');
+                Q.stageScene('hud', 1);
                 Q.stageScene('level1');
                 Q.state.p.score = 0;
                 //             Q.audio.play('music_main.mp3', {
@@ -679,7 +679,7 @@ var game = function () {
 
             button.on("click", function () {
                 Q.clearStages();
-                Q.stageScene('hud');
+                Q.stageScene('hud', 1);
                 Q.stageScene('level1');
                 //           Q.audio.play('music_main.mp3', {
                 //             loop: true
@@ -714,10 +714,6 @@ var game = function () {
                 y: 0, // be overridden on object creation
                 sheet: "hud"
             }));
-            button_hud.on("click", function () {
-                Q.clearStages();
-                Q.stageScene("mainTitle");
-            });
         });
 
 
@@ -731,14 +727,15 @@ var game = function () {
                 y: false
             });
             stage.insert(new Q.Enemy1({
-                x: 250,
+                x: 200,
                 y: 130
             }));
             stage.insert(new Q.EnemySpark({
                 x: 500,
                 y: 130
             }));
-            //var hud = stage.insert(new Q.HUD({}));
+           
+           
             // stage.viewport.scale=2;
         });
         Q.scene("level2", function (stage) {

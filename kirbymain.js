@@ -18,7 +18,7 @@ var game = function () {
 
 
 
-    Q.load("kirby.json,kirby.png,tiles.png,enemy1.png, enemy1.json, hud.png, hud.json,health.png, health.json,scoreElem.png, kirbyElem.png, livesElem.json, livesElem.png, enemy_spark.png, enemy_spark.json", function () {
+    Q.load("kirby.json,kirby.png,tiles.png,enemy1.png, enemy1.json, hud.png, hud.json, powers.png, powers.json, health.png, health.json,scoreElem.png, kirbyElem.png, livesElem.json, livesElem.png, enemy_spark.png, enemy_spark.json", function () {
         // Sprites sheets can be created manually
         Q.sheet("tiles", "tiles.png", {
             tilew: 32,
@@ -174,13 +174,13 @@ var game = function () {
                     this.p.vy /= 2;
                     this.p.vx /= 2;
                 }
-                if (this.p.power === "fed")
+                if (this.p.power  === "fed")
                     this.p.vx /= 3;
                 this.p.reload -= dt;
                 if (this.p.reload < 0)
                     this.p.reload = 0;
                 this.p.invincible -= dt;
-                if (this.p.invincible < 0 && this.p.power != "fed") {
+                if (this.p.invincible < 0 && this.p.power  != "fed") {
                     this.p.invincible = 0;
                     this.p.sensor = false;
                     this.add("platformerControls");
@@ -240,7 +240,7 @@ var game = function () {
                 //when Z or SPACE is pressed
                 if (Q.inputs['fire']) {
                     //if Kirby is not flying and has not started swallowing air
-                    if (this.p.state === "" && this.p.power != "fed") {
+                    if (this.p.state === "" && this.p.power  != "fed") {
                         this.p.state = "swell"; //start swallowing animation
                     }
                     //check if flies higher than possible
@@ -373,7 +373,7 @@ var game = function () {
                     }
                     if (collision.obj.isA("Player") && collision.obj.p.state != "dead" && !this.p.dead) {
                         if (collision.obj.p.state === "attack" || collision.obj.p.state === "kick") {
-                            if (collision.obj.p.power === "eat") {
+                            if (collision.obj.p.power  === "eat") {
                                 this.p.dead = true;
 
                                 if (this.p.x < collision.obj.p.x)
@@ -706,6 +706,40 @@ var game = function () {
                 }
             }
         });
+
+
+        Q.compileSheets("powers.png", "powers.json");
+        Q.animations('powers_anim', {
+            pNormal: {
+                frames: [0],
+                rate: 1 / 3,
+                loop: false
+            },
+            pSpark: {
+                frames: [1],
+                rate: 1 / 3,
+                loop: false
+            }
+        })
+        Q.Sprite.extend("PowerElem", {
+            init: function (p) {
+                this._super(p, {
+                    sheet: "powers",
+                    sprite: "powers_anim"
+
+                });
+                this.add('animation,tween');
+            },
+            step: function (dt) {
+                console.log(Q.state.get("powers"));
+                switch (Q.state.get("powers")) {
+                   case "normal" /*|| "eat" */: this.play("pNormal");
+                   break;
+                   case "spark" : this.play("pSpark");
+                   break;
+                }
+            }
+        });
         //************************************** */
         Q.scene("endGame", function (stage) {
             //        Q.audio.stop('music_main.mp3');
@@ -739,6 +773,7 @@ var game = function () {
                 Q.stageScene('level1');
                 Q.state.p.score = 0;
                 Q.state.p.health = 6;
+                Q.state.p.powers = "normal";
                 //           Q.audio.play('music_main.mp3', {
                 //             loop: true
                 //       });
@@ -751,6 +786,7 @@ var game = function () {
                 Q.stageScene('level1');
                 Q.state.p.score = 0;
                 Q.state.p.health = 6;
+                Q.state.p.powers = "normal";
                 //              Q.audio.play('music_main.mp3', {
                 //                loop: true
                 //          });
@@ -791,6 +827,7 @@ var game = function () {
                 Q.stageScene('level1');
                 Q.state.p.score = 0;
                 Q.state.p.health = 6;
+                Q.state.p.powers = "normal";
                 //              Q.audio.play('music_main.mp3', {
                 //                loop: true
                 //          });
@@ -803,6 +840,7 @@ var game = function () {
                 Q.stageScene('level1');
                 Q.state.p.score = 0;
                 Q.state.p.health = 6;
+                Q.state.p.powers = "normal";
                 //             Q.audio.play('music_main.mp3', {
                 //                loop: true
                 //          });
@@ -890,6 +928,10 @@ var game = function () {
                 x: 95,
                 y: 190
             }));
+            stage.insert(new Q.PowerElem({
+                x: 159,
+                y: 198
+            }));
         });
 
         Q.scene("level1", function (stage) {
@@ -929,7 +971,8 @@ var game = function () {
             Q.state.reset({
                 level: 1,
                 score: 0,
-                health: 6
+                health: 6,
+                powers: "normal"
             });
             Q.stageScene("mainTitle");
         });

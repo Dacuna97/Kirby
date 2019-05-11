@@ -18,7 +18,7 @@ var game = function () {
 
 
 
-    Q.load("kirby.json,kirby.png,tiles.png,enemy1.png, enemy1.json, hud.png, hud.json, powers.png, powers.json, health.png, health.json,scoreElem.png, kirbyElem.png, livesElem.json, livesElem.png, enemy_spark.png, enemy_spark.json", function () {
+    Q.load("kirby.json,kirby.png,tiles.png,enemy1.png, enemy1.json, hud.png, hud.json, numbers.png, numbers.json, powers.png, powers.json, health.png, health.json,scoreElem.png, kirbyElem.png, livesElem.json, livesElem.png, enemy_spark.png, enemy_spark.json", function () {
         // Sprites sheets can be created manually
         Q.sheet("tiles", "tiles.png", {
             tilew: 32,
@@ -408,13 +408,19 @@ var game = function () {
                                 collision.obj.p.sensor = true;
                                 collision.obj.del("platformerControls");
                                 if (Q.state.get("health") == 0) {
-                                    collision.obj.play("die");
-                                    collision.obj.p.state = "dead";
-                                    collision.obj.p.vy = -500;
-                                    collision.obj.del("platformerControls");
-                                    Q.stageScene("endGame", 1, {
-                                        label: "You Died"
-                                    });
+                                Q.state.p.lives = Q.state.get("lives") - 1;
+                                Q.stageScene("endGame", 1, {
+                                    label: "You Died"
+                                });
+                                    if(Q.state.get("lives") == 0) {
+                                        collision.obj.play("die");
+                                        collision.obj.p.state = "dead";
+                                        collision.obj.p.vy = -500;
+                                        collision.obj.del("platformerControls");
+                                        Q.stageScene("endGame", 1, {
+                                            label: "You Died"
+                                        });
+                                    }
                                 }
                                 collision.obj.p.invincible += 0.4;
                             }
@@ -708,6 +714,107 @@ var game = function () {
         });
 
 
+        Q.compileSheets("numbers.png", "numbers.json");
+        Q.animations('numbers_anim', {
+            n0: {
+                frames: [0],
+                rate: 1 / 3,
+                loop: false
+            },
+            n1: {
+                frames: [1],
+                rate: 1 / 3,
+                loop: false
+            },
+            n2: {
+                frames: [2],
+                rate: 1 / 3,
+                loop: false
+            },
+            n3: {
+                frames: [3],
+                rate: 1 / 3,
+                loop: false
+            },
+            n4: {
+                frames: [4],
+                rate: 1 / 3,
+                loop: false
+            },
+            n5: {
+                frames: [5],
+                rate: 1 / 3,
+                loop: false
+            },
+            n6: {
+                frames: [6],
+                rate: 1 / 3,
+                loop: false
+            },
+            n7: {
+                frames: [7],
+                rate: 1 / 3,
+                loop: false
+            },
+            n8: {
+                frames: [8],
+                rate: 1 / 3,
+                loop: false
+            },
+            n9: {
+                frames: [9],
+                rate: 1 / 3,
+                loop: false
+            }
+        })
+        Q.Sprite.extend("NumberE", {
+            init: function (p) {
+                this._super(p, {
+                    sheet: "number",
+                    sprite: "numbers_anim",
+                    n: p.n
+
+                });
+                this.add('animation,tween');
+            },
+            step: function (dt) {
+
+                switch (this.p.n) {
+                    case 0:
+                        this.play("n0");
+                        break;
+                    case 1:
+                        this.play("n1");
+                        break;
+                    case 2:
+                        this.play("n2");
+                        break;
+                    case 3:
+                        this.play("n3");
+                        break;
+                    case 4:
+                        this.play("n4");
+                        break;
+                    case 5:
+                        this.play("n5");
+                        break;
+                    case 6:
+                        this.play("n6");
+                        break;
+                    case 6:
+                        this.play("n7");
+                        break;
+                    case 6:
+                        this.play("n8");
+                        break;
+                    case 6:
+                        this.play("n9");
+                        break;
+                }
+            }
+        });
+
+
         Q.compileSheets("powers.png", "powers.json");
         Q.animations('powers_anim', {
             pNormal: {
@@ -739,6 +846,9 @@ var game = function () {
                 }
             }
         });
+
+
+
         //************************************** */
         Q.scene("endGame", function (stage) {
             //        Q.audio.stop('music_main.mp3');
@@ -766,32 +876,35 @@ var game = function () {
 
             button.on("click", function () {
                 //           Q.audio.stop();
+                Q.state.p.health = 6;
                 Q.clearStages();
                 Q.stageScene('hud');
+               
                 Q.stageScene('hudsElements');
                 Q.stageScene('level1');
                 Q.state.p.level = 1;
                 Q.state.p.score = 0;
-                Q.state.p.health = 6;
                 Q.state.p.powers = "normal";
+
                 //           Q.audio.play('music_main.mp3', {
                 //             loop: true
                 //       });
             });
             Q.input.on('confirm', this, () => {
                 Q.audio.stop();
+                Q.state.p.health = 6;
                 Q.clearStages();
                 Q.stageScene('hud', 1);
                 Q.stageScene('hudsElements', 2);
                 Q.stageScene('level1');
                 Q.state.p.level = 1;
                 Q.state.p.score = 0;
-                Q.state.p.health = 6;
                 Q.state.p.powers = "normal";
                 //              Q.audio.play('music_main.mp3', {
                 //                loop: true
                 //          });
             });
+            Q.state.p.health = 6;
             Q.stageScene('hud', 1);
             Q.stageScene('hudsElements', 2);
             container.fit(20);
@@ -929,6 +1042,16 @@ var game = function () {
                 x: 95,
                 y: 190
             }));
+            stage.insert(new Q.NumberE({
+                x: 211,
+                y:198 ,
+                n: 0
+            }));
+            stage.insert(new Q.NumberE({
+                x: 219,
+                y:198 ,
+                n: Q.state.get("lives")
+            }));
             stage.insert(new Q.PowerElem({
                 x: 159,
                 y: 198
@@ -973,7 +1096,8 @@ var game = function () {
                 level: 1,
                 score: 0,
                 health: 6,
-                powers: "normal"
+                powers: "normal",
+                lives: 4
             });
             Q.stageScene("mainTitle");
         });

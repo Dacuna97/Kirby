@@ -641,37 +641,37 @@ var game = function () {
         Q.compileSheets("health.png", "health.json");
         Q.animations('health_anim', {
             h6: {
-                frames: [0],
+                frames: [0,1],
                 rate: 1 / 3,
                 loop: false
             },
             h5: {
-                frames: [1],
+                frames: [2,3],
                 rate: 1 / 3,
                 loop: false
             },
             h4: {
-                frames: [2],
+                frames: [4,5],
                 rate: 1 / 3,
                 loop: false
             },
             h3: {
-                frames: [3],
+                frames: [6,7],
                 rate: 1 / 3,
                 loop: false
             },
             h2: {
-                frames: [4],
+                frames: [8,9],
                 rate: 1 / 3,
                 loop: false
             },
             h1: {
-                frames: [5],
+                frames: [10,11],
                 rate: 1 / 3,
                 loop: false
             },
             h0: {
-                frames: [6],
+                frames: [12],
                 rate: 1 / 3,
                 loop: false
             }

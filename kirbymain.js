@@ -731,7 +731,6 @@ var game = function () {
                 this.add('animation,tween');
             },
             step: function (dt) {
-                console.log(Q.state.get("powers"));
                 switch (Q.state.get("powers")) {
                    case "normal" /*|| "eat" */: this.play("pNormal");
                    break;
@@ -771,6 +770,7 @@ var game = function () {
                 Q.stageScene('hud');
                 Q.stageScene('hudsElements');
                 Q.stageScene('level1');
+                Q.state.p.level = 1;
                 Q.state.p.score = 0;
                 Q.state.p.health = 6;
                 Q.state.p.powers = "normal";
@@ -784,6 +784,7 @@ var game = function () {
                 Q.stageScene('hud', 1);
                 Q.stageScene('hudsElements', 2);
                 Q.stageScene('level1');
+                Q.state.p.level = 1;
                 Q.state.p.score = 0;
                 Q.state.p.health = 6;
                 Q.state.p.powers = "normal";

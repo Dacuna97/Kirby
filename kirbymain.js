@@ -160,7 +160,7 @@ var game = function () {
                     x: 180, // You can also set additional properties that can
                     y: -10, // be overridden on object creation
                     state: "",
-                    power: "eat",
+                    power: "",
                     swell_time: 0,
                     reload: 0,
                     sensor: false,
@@ -170,6 +170,8 @@ var game = function () {
 
             },
             step: function (dt) {
+                console.log("Power = " + this.p.power);
+                console.log("State = " + this.p.state);
                 if (this.p.state === "flying"){
                     this.p.vy /= 2;
                     this.p.vx /= 2;
@@ -207,6 +209,11 @@ var game = function () {
                             this.play("run_right");
                         } else if (this.p.vx < 0 && this.p.vy == 0 ) {
                             this.play("run_left");
+                        } else if (Q.inputs['down']) {
+                            this.p.state = "down";
+                            this.play("move_down");
+                        } else if (this.p.state === "down" && !Q.inputs['down']) {
+                            this.p.state = "";
                         } else {
                             this.play("stand_" + this.p.direction);
                         }
@@ -223,12 +230,6 @@ var game = function () {
                         x: true,
                         y: false
                     });
-                if (Q.inputs['down'] && this.p.state === "") {
-                    this.p.state = "down";
-                    this.play("move_down");
-                } else if (this.p.state === "down" && !Q.inputs['down']) {
-                    this.p.state = "";
-                }
 
 
 
@@ -373,7 +374,7 @@ var game = function () {
                     }
                     if (collision.obj.isA("Player") && collision.obj.p.state != "dead" && !this.p.dead) {
                         if (collision.obj.p.state === "attack" || collision.obj.p.state === "kick") {
-                            if (collision.obj.p.power  === "eat") {
+                            if (collision.obj.p.power  === "eat" && collision.obj.p.state != "kick") {
                                 this.p.dead = true;
 
                                 if (this.p.x < collision.obj.p.x)
@@ -391,8 +392,6 @@ var game = function () {
                                 setTimeout(function () {
                                     aux.destroy();
                                     aux2.p.sensor = false;
-
-
                                 }, 200);
                             } else
                                 this.destroy();
@@ -584,6 +583,7 @@ var game = function () {
                     x: p.x, // You can also set additional properties that can
                     y: p.y, // be overridden on object creation
                     vx: 40,
+                    sensor: true,
                     dead: false
                 });
                 this.add('2d,aiBounce,enemy,animation,tween');

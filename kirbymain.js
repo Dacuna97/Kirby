@@ -18,7 +18,7 @@ var game = function () {
 
 
 
-    Q.load("kirby.json,kirby.png,tiles.png,enemy1.png, enemy1.json, hud.png, hud.json, numbers.png, numbers.json, powers.png, powers.json, health.png, health.json,scoreElem.png, kirbyElem.png, livesElem.json, livesElem.png, enemy_spark.png, enemy_spark.json", function () {
+    Q.load("kirby.json,kirby.png,tiles.png,enemy1.png, enemy1.json, hud.png, hud.json, numbers.png, numbers.json, powers.png, powers.json, health.png, health.json,scoreElem.png, kirbyElem.png, livesElem.json, livesElem.png, enemy_spark.png, enemy_spark.json, star.png, star.json", function () {
         // Sprites sheets can be created manually
         Q.sheet("tiles", "tiles.png", {
             tilew: 32,
@@ -148,6 +148,22 @@ var game = function () {
             die: {
                 frames: [12],
                 rate: 1 / 5
+            },
+            shoot_star_right: {
+                frames: [0, 1],
+                rate: 1 / 10,
+                flip: false,
+                loop: false,
+                next: "stand_right",
+                trigger: "shoot"
+            },
+            shoot_star_left: {
+                frames: [0, 1],
+                rate: 1 / 10,
+                flip: "x",
+                loop: false,
+                next: "stand_left",
+                trigger: "shoot"
             }
         });
 
@@ -167,22 +183,40 @@ var game = function () {
                     invincible: 0
                 });
                 this.add('2d, platformerControls, animation, eat');
+                this.on("shoot", this, "shootStar");
 
             },
+            shootStar: function () {
+                let offset = 0;
+                let speed = 0;
+                if (this.p.direction === "right") {
+                    offset = this.p.w;
+                    speed = 100;
+                } else {
+                    offset = this.p.w * -1;
+                    speed = -100;
+                }
+                this.stage.insert(new Q.Star({
+                    x: this.p.x + offset,
+                    y: this.p.y,
+                    vx: speed
+                }));
+                this.del("fed");
+                this.add("eat");
+                this.p.reload = 0.2;
+            },
             step: function (dt) {
-                console.log("Power = " + this.p.power);
-                console.log("State = " + this.p.state);
-                if (this.p.state === "flying"){
+                if (this.p.state === "flying") {
                     this.p.vy /= 2;
                     this.p.vx /= 2;
                 }
-                if (this.p.power  === "fed")
+                if (this.p.power === "fed")
                     this.p.vx /= 3;
                 this.p.reload -= dt;
                 if (this.p.reload < 0)
                     this.p.reload = 0;
                 this.p.invincible -= dt;
-                if (this.p.invincible < 0 && this.p.power  != "fed") {
+                if (this.p.invincible < 0 && this.p.power != "fed") {
                     this.p.invincible = 0;
                     this.p.sensor = false;
                     this.add("platformerControls");
@@ -207,7 +241,7 @@ var game = function () {
                             }
                         } else if (this.p.vx > 0 && this.p.vy == 0) {
                             this.play("run_right");
-                        } else if (this.p.vx < 0 && this.p.vy == 0 ) {
+                        } else if (this.p.vx < 0 && this.p.vy == 0) {
                             this.play("run_left");
                         } else if (Q.inputs['down']) {
                             this.p.state = "down";
@@ -241,7 +275,7 @@ var game = function () {
                 //when Z or SPACE is pressed
                 if (Q.inputs['fire']) {
                     //if Kirby is not flying and has not started swallowing air
-                    if (this.p.state === "" && this.p.power  != "fed") {
+                    if (this.p.state === "" && this.p.power != "fed") {
                         this.p.state = "swell"; //start swallowing animation
                     }
                     //check if flies higher than possible
@@ -374,7 +408,7 @@ var game = function () {
                     }
                     if (collision.obj.isA("Player") && collision.obj.p.state != "dead" && !this.p.dead) {
                         if (collision.obj.p.state === "attack" || collision.obj.p.state === "kick") {
-                            if (collision.obj.p.power  === "eat" && collision.obj.p.state != "kick") {
+                            if (collision.obj.p.power === "eat" && collision.obj.p.state != "kick") {
                                 this.p.dead = true;
 
                                 if (this.p.x < collision.obj.p.x)
@@ -407,11 +441,11 @@ var game = function () {
                                 collision.obj.p.sensor = true;
                                 collision.obj.del("platformerControls");
                                 if (Q.state.get("health") == 0) {
-                                Q.state.p.lives = Q.state.get("lives") - 1;
-                                Q.stageScene("endGame", 1, {
-                                    label: "You Died"
-                                });
-                                    if(Q.state.get("lives") == 0) {
+                                    Q.state.p.lives = Q.state.get("lives") - 1;
+                                    Q.stageScene("endGame", 1, {
+                                        label: "You Died"
+                                    });
+                                    if (Q.state.get("lives") == 0) {
                                         collision.obj.play("die");
                                         collision.obj.p.state = "dead";
                                         collision.obj.p.vy = -500;
@@ -432,7 +466,8 @@ var game = function () {
         Q.component("eat", {
             added: function () {
                 this.entity.p.power = "eat";
-
+                this.entity.p.sheet = "kirbyR";
+                this.entity.size(true);
             },
             extend: {
                 attack: function (stop) {
@@ -465,19 +500,56 @@ var game = function () {
         Q.component("fed", {
             extend: {
                 attack: function (stop) {
-                    this.p.sheet = "kirbyR";
+                    this.p.sheet = "kirbyShootStar";
                     this.size(true);
-                    this.play('start_swell_' + this.p.direction);
-                    this.p.power = "eat";
-                    this.del("fed");
-                    this.add("eat");
-                    this.p.reload = 0.2;
+                    this.play('shoot_star_' + this.p.direction, 1);
 
                 }
             }
         });
+        Q.compileSheets("star.png", "star.json");
+        Q.animations('star_anim', {
+            shoot: {
+                frames: [0, 1, 2, 3],
+                rate: 1 / 10,
+                loop: true
+            },
+            collide: {
+                frames: [4, 5, 6],
+                rate: 1 / 10,
+                trigger: "destroy",
+                loop: false
+            }
+        });
+        Q.Sprite.extend("Star", {
 
+            init: function (p) {
 
+                this._super(p, {
+                    sprite: "star_anim",
+                    sheet: "shoot", // Setting a sprite sheet sets sprite width and height
+                    x: p.x, // You can also set additional properties that can
+                    y: p.y, // be overridden on object creation
+                    vx: p.vx,
+                    gravity: 0
+                });
+                this.add('2d,animation');
+                this.on("hit", function (collision) {
+                    this.p.vx = 0;
+                    this.play("collide", 1);
+                    if (collision.obj.has("enemy")) {
+                        collision.obj.destroy();
+                    }
+                });
+                this.on("destroy", this, "destroyed");
+            },
+            destroyed: function(){
+                this.destroy();
+            },
+            step: function (dt) {
+                this.play("shoot");
+            }
+        });
         Q.compileSheets("enemy1.png", "enemy1.json");
 
         Q.animations('enemy1_anim', {
@@ -641,32 +713,32 @@ var game = function () {
         Q.compileSheets("health.png", "health.json");
         Q.animations('health_anim', {
             h6: {
-                frames: [0,1],
+                frames: [0, 1],
                 rate: 1 / 3,
                 loop: false
             },
             h5: {
-                frames: [2,3],
+                frames: [2, 3],
                 rate: 1 / 3,
                 loop: false
             },
             h4: {
-                frames: [4,5],
+                frames: [4, 5],
                 rate: 1 / 3,
                 loop: false
             },
             h3: {
-                frames: [6,7],
+                frames: [6, 7],
                 rate: 1 / 3,
                 loop: false
             },
             h2: {
-                frames: [8,9],
+                frames: [8, 9],
                 rate: 1 / 3,
                 loop: false
             },
             h1: {
-                frames: [10,11],
+                frames: [10, 11],
                 rate: 1 / 3,
                 loop: false
             },
@@ -839,10 +911,10 @@ var game = function () {
             },
             step: function (dt) {
                 switch (Q.state.get("powers")) {
-                   case "normal" /*|| "eat" */: this.play("pNormal");
-                   break;
-                   case "spark" : this.play("pSpark");
-                   break;
+                    case "normal" /*|| "eat" */: this.play("pNormal");
+                        break;
+                    case "spark": this.play("pSpark");
+                        break;
                 }
             }
         });
@@ -879,7 +951,7 @@ var game = function () {
                 Q.state.p.health = 6;
                 Q.clearStages();
                 Q.stageScene('hud');
-               
+
                 Q.stageScene('hudsElements');
                 Q.stageScene('level1');
                 Q.state.p.level = 1;
@@ -1044,12 +1116,12 @@ var game = function () {
             }));
             stage.insert(new Q.NumberE({
                 x: 211,
-                y:198 ,
+                y: 198,
                 n: 0
             }));
             stage.insert(new Q.NumberE({
                 x: 219,
-                y:198 ,
+                y: 198,
                 n: Q.state.get("lives")
             }));
             stage.insert(new Q.PowerElem({

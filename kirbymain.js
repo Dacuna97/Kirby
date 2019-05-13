@@ -190,7 +190,7 @@ var game = function () {
                 Q.input.on("fire", this, "fly");
                 this.on("shoot", this, "shootStar");
                 this.on("swell_anim", this, "swell_animation")
-
+                this.on("start_fly", this, "start_fly_animation");
             },
             fly: function () {
                 //if Kirby is not flying and has not started swallowing air
@@ -219,7 +219,7 @@ var game = function () {
                 this.size(true);
                 this.play("swell_" + this.p.direction, 1);
             },
-            start_fly: function(){
+            start_fly_animation: function(){
                 // step of Kirby with mouth open, taller and wider
                 this.p.sheet = "kirbyFly";
                 this.size(true);
@@ -245,6 +245,7 @@ var game = function () {
                 this.p.reload = 0.2;
             },
             step: function (dt) {
+                console.log(this.p.sheet);
                 if (this.p.power === "fed")
                     this.p.vx /= 3;
                 this.p.reload -= dt;

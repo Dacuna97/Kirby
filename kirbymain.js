@@ -79,50 +79,54 @@ var game = function () {
                 frames: [1, 2],
                 rate: 1 / 1,
                 flip: false,
+                loop: true
             },
             fly_left: {
                 frames: [1, 2],
                 rate: 1 / 1,
                 flip: "x",
+                loop: true
             },
             start_swell_right: {
                 frames: [7, 8],
-                rate: 1 / 2,
+                rate: 1 / 30,
                 trigger: "swell_anim",
                 flip: false,
                 loop: false
             },
             start_swell_left: {
                 frames: [7, 8],
-                rate: 1 / 2,
+                rate: 1 / 30,
                 trigger: "swell_anim",
                 flip: "x",
                 loop: false
             },
             swell_right: {
                 frames: [0],
-                rate: 1 / 2,
+                rate: 1 / 20,
                 flip: false,
                 trigger: "start_fly",
                 loop: false
             },
             swell_left: {
                 frames: [0],
-                rate: 1 / 2,
+                rate: 1 / 20,
                 flip: "x",
                 trigger: "start_fly",
                 loop: false
             },
             start_fly_right: {
                 frames: [0],
-                rate: 1 / 1,
+                rate: 1 / 20,
                 loop: false,
+                next: "fly_right",
                 flip: false
             },
             start_fly_left: {
                 frames: [0],
-                rate: 1 / 1,
+                rate: 1 / 20,
                 loop: false,
+                next: "fly_left",
                 flip: "x"
             },
             kick_left: {
@@ -200,16 +204,11 @@ var game = function () {
                 }
                 //check if flies higher than possible
                 else if (this.p.state === "flying") {
-                    this.play("fly_" + this.p.direction, 1);
-                    this.p.vy /= 2;
-                    this.p.vx /= 2;
-                    if (this.p.y < 10) {
-                        this.p.y = 10;
-                    }
+                    this.p.gravity = 0.15;
                     if (this.p.vy < -50) {
                         this.p.vy = -50;
                     } else {
-                        this.p.vy -= 50;
+                        this.p.vy -= 70;
                     }
                 }
             },
@@ -219,11 +218,12 @@ var game = function () {
                 this.size(true);
                 this.play("swell_" + this.p.direction, 1);
             },
-            start_fly_animation: function(){
+            start_fly_animation: function () {
                 // step of Kirby with mouth open, taller and wider
                 this.p.sheet = "kirbyFly";
                 this.size(true);
                 this.play("start_fly_" + this.p.direction, 1);
+                this.p.state = "flying";
             },
             shootStar: function () {
                 let offset = 0;
@@ -245,7 +245,8 @@ var game = function () {
                 this.p.reload = 0.2;
             },
             step: function (dt) {
-                console.log(this.p.sheet);
+                console.log(this.p.y);
+
                 if (this.p.power === "fed")
                     this.p.vx /= 3;
                 this.p.reload -= dt;
@@ -257,9 +258,17 @@ var game = function () {
                     this.p.sensor = false;
                     this.add("platformerControls");
                 }
-                if (this.p.vy >= 0)
+                if (this.p.vy >= 0) {
                     this.p.vx /= 2;
-                if (this.p.state != "dead") {
+                }
+                if (this.p.state === "flying") {
+                    this.play("fly_" + this.p.direction);
+                    this.p.vx /= 2;
+                    if (this.p.y < 10) {
+                        this.p.y = 10;
+                    }
+                }
+                else if (this.p.state != "dead") {
                     if (this.p.state != "attack") {
                         if (this.p.vy < 0 && this.p.state === "") { //jump
                             this.play("jump_" + this.p.direction);
@@ -334,8 +343,10 @@ var game = function () {
 
             },
             unswell_animation: function (dt) {
+                
                 //same but when Kirby releases the air
                 if (this.p.state === "unswell") {
+                    this.p.gravity = 1;
                     this.p.swell_time += dt; //add time to change from step to step in animation
                     if (this.p.swell_time < 1 / 10) {
                         this.play("start_fly_" + this.p.direction);
@@ -993,9 +1004,9 @@ var game = function () {
         });
 
         Q.scene("hudsElements", function (stage) {
-            let array =[];
+            let array = [];
             array = Q.state.get("score").toString().split("");
-            array.forEach((elem,index) => {
+            array.forEach((elem, index) => {
                 stage.insert(new Q.NumberE({
                     x: 50 + index * 8,
                     y: 206,

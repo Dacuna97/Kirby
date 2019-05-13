@@ -86,14 +86,16 @@ var game = function () {
                 flip: "x",
             },
             start_swell_right: {
-                frames: [8, 9],
+                frames: [7, 8],
                 rate: 1 / 2,
+                trigger: "swell_anim",
                 flip: false,
                 loop: false
             },
             start_swell_left: {
-                frames: [8, 9],
+                frames: [7, 8],
                 rate: 1 / 2,
+                trigger: "swell_anim",
                 flip: "x",
                 loop: false
             },
@@ -101,12 +103,14 @@ var game = function () {
                 frames: [0],
                 rate: 1 / 2,
                 flip: false,
+                trigger: "start_fly",
                 loop: false
             },
             swell_left: {
                 frames: [0],
                 rate: 1 / 2,
                 flip: "x",
+                trigger: "start_fly",
                 loop: false
             },
             start_fly_right: {
@@ -183,8 +187,43 @@ var game = function () {
                     invincible: 0
                 });
                 this.add('2d, platformerControls, animation, eat');
+                Q.input.on("fire", this, "fly");
                 this.on("shoot", this, "shootStar");
+                this.on("swell_anim", this, "swell_animation")
 
+            },
+            fly: function () {
+                //if Kirby is not flying and has not started swallowing air
+                if (this.p.state === "" && this.p.power != "fed") {
+                    //start swallowing animation
+                    this.play("start_swell_" + this.p.direction, 1);
+                }
+                //check if flies higher than possible
+                else if (this.p.state === "flying") {
+                    this.play("fly_" + this.p.direction, 1);
+                    this.p.vy /= 2;
+                    this.p.vx /= 2;
+                    if (this.p.y < 10) {
+                        this.p.y = 10;
+                    }
+                    if (this.p.vy < -50) {
+                        this.p.vy = -50;
+                    } else {
+                        this.p.vy -= 50;
+                    }
+                }
+            },
+            swell_animation: function () {
+                // step of Kirby opening mouth, getting taller but not wider
+                this.p.sheet = "kirbySwell";
+                this.size(true);
+                this.play("swell_" + this.p.direction, 1);
+            },
+            start_fly: function(){
+                // step of Kirby with mouth open, taller and wider
+                this.p.sheet = "kirbyFly";
+                this.size(true);
+                this.play("start_fly_" + this.p.direction, 1);
             },
             shootStar: function () {
                 let offset = 0;
@@ -206,10 +245,6 @@ var game = function () {
                 this.p.reload = 0.2;
             },
             step: function (dt) {
-                if (this.p.state === "flying") {
-                    this.p.vy /= 2;
-                    this.p.vx /= 2;
-                }
                 if (this.p.power === "fed")
                     this.p.vx /= 3;
                 this.p.reload -= dt;
@@ -224,9 +259,7 @@ var game = function () {
                 if (this.p.vy >= 0)
                     this.p.vx /= 2;
                 if (this.p.state != "dead") {
-                    if (this.p.state === "flying") {
-                        this.play("fly_" + this.p.direction);
-                    } else if (this.p.state != "attack") {
+                    if (this.p.state != "attack") {
                         if (this.p.vy < 0 && this.p.state === "") { //jump
                             this.play("jump_" + this.p.direction);
                         } else if (this.p.vy > 0 && this.p.state === "") {
@@ -265,32 +298,11 @@ var game = function () {
                         y: false
                     });
 
-
-
-                this.swell_animation(dt);
                 this.unswell_animation(dt);
                 this.kick();
 
 
-                //when Z or SPACE is pressed
-                if (Q.inputs['fire']) {
-                    //if Kirby is not flying and has not started swallowing air
-                    if (this.p.state === "" && this.p.power != "fed") {
-                        this.p.state = "swell"; //start swallowing animation
-                    }
-                    //check if flies higher than possible
-                    if (this.p.state === "flying") {
-                        if (this.p.y < 10) {
-                            this.p.y = 10;
-                        }
-                        if (this.p.vy < -50) {
-                            this.p.vy = -50;
-                        } else {
-                            this.p.vy -= 50;
-                        }
-                    }
 
-                }
 
                 if (Q.inputs['action']) {
                     if (this.p.state === "flying") {
@@ -319,34 +331,6 @@ var game = function () {
                     }
                 }
 
-            },
-            swell_animation: function (dt) {
-                //animation of getting bigger done in 3 steps
-                if (this.p.state === "swell") {
-                    this.p.swell_time += dt; //add time to change from step to step in animation
-                    if (this.p.swell_time < 1 / 10) { // first two frames of Kirby opening mouth
-                        this.play("start_swell_" + this.p.direction);
-                    }
-                    if (this.p.swell_time >= 1 / 10 && this.p.swell_time < 2 / 10) {
-                        // step of Kirby opening mouth, getting taller but not wider
-                        this.p.sheet = "kirbySwell";
-                        this.size(true);
-                        this.play("swell_" + this.p.direction);
-                    }
-                    if (this.p.swell_time >= 2 / 10 && this.p.swell_time < 3 / 10) {
-                        // step of Kirby with mouth open, taller and wider
-                        this.p.sheet = "kirbyFly";
-                        this.size(true);
-                        this.play("start_fly_" + this.p.direction);
-                    }
-                    if (this.p.swell_time >= 3 / 10) {
-                        //change state of animation from swallowing air to flying one where it only moves hands
-                        this.p.state = "flying";
-                        this.p.sheet = "kirbyFly";
-                        this.size(true);
-                    }
-
-                }
             },
             unswell_animation: function (dt) {
                 //same but when Kirby releases the air
@@ -543,7 +527,7 @@ var game = function () {
                 });
                 this.on("destroy", this, "destroyed");
             },
-            destroyed: function(){
+            destroyed: function () {
                 this.destroy();
             },
             step: function (dt) {
@@ -594,41 +578,7 @@ var game = function () {
         });
 
 
-        //        Q.compileSheets("bloopa.png", "bloopa.json");
-        Q.animations('bloopa_anim', {
-            move_up: {
-                frames: [0, 1],
-                rate: 1 / 5,
-                loop: true
-            },
-            move_down: {
-                frames: [2],
-                rate: 1 / 15,
-                loop: false
-            },
-            die: {
-                frames: [1],
-                rate: 1 / 15,
-                loop: false
-            }
-        });
-        Q.Sprite.extend("Bloopa", {
-            init: function (p) {
-                this._super(p, {
-                    sprite: "bloopa_anim",
-                    sheet: "bloopa", // Setting a sprite sheet sets sprite width and height
-                    x: p.x, // You can also set additional properties that can
-                    y: p.y, // be overridden on object creation
-                    vy: -10,
-                    move: 'up',
-                    dead: false,
-                    range: p.range,
-                    dest: 0
-                });
-                this.add('2d,aiBounce,enemy,animation');
-            },
 
-        });
 
         Q.compileSheets("enemy_spark.png", "enemy_spark.json");
 
@@ -758,30 +708,7 @@ var game = function () {
                 this.add('animation,tween');
             },
             step: function (dt) {
-
-                switch (Q.state.get("health")) {
-                    case 0:
-                        this.play("h0");
-                        break;
-                    case 1:
-                        this.play("h1");
-                        break;
-                    case 2:
-                        this.play("h2");
-                        break;
-                    case 3:
-                        this.play("h3");
-                        break;
-                    case 4:
-                        this.play("h4");
-                        break;
-                    case 5:
-                        this.play("h5");
-                        break;
-                    case 6:
-                        this.play("h6");
-                        break;
-                }
+                this.play("h" + Q.state.get("health"));
             }
         });
 
@@ -850,39 +777,7 @@ var game = function () {
                 this.add('animation,tween');
             },
             step: function (dt) {
-
-                switch (this.p.n) {
-                    case 0:
-                        this.play("n0");
-                        break;
-                    case 1:
-                        this.play("n1");
-                        break;
-                    case 2:
-                        this.play("n2");
-                        break;
-                    case 3:
-                        this.play("n3");
-                        break;
-                    case 4:
-                        this.play("n4");
-                        break;
-                    case 5:
-                        this.play("n5");
-                        break;
-                    case 6:
-                        this.play("n6");
-                        break;
-                    case 6:
-                        this.play("n7");
-                        break;
-                    case 6:
-                        this.play("n8");
-                        break;
-                    case 6:
-                        this.play("n9");
-                        break;
-                }
+                this.play("n" + this.p.n);
             }
         });
 

@@ -1006,9 +1006,18 @@ var game = function () {
         Q.scene("hudsElements", function (stage) {
             let array = [];
             array = Q.state.get("score").toString().split("");
+<<<<<<< HEAD
             array.forEach((elem, index) => {
+=======
+            let size = array.length;
+            for(let i = 0; i < 7-size ; i++) {
+                array.unshift("0");
+            }
+            array.forEach((elem,index) => {
+               
+>>>>>>> c21b74496fffd2ddb196cdbb1bbdb8dd68bf5fb0
                 stage.insert(new Q.NumberE({
-                    x: 50 + index * 8,
+                    x: 75 + index * 8,
                     y: 206,
                     n: elem
                 }));
@@ -1084,7 +1093,7 @@ var game = function () {
         Q.loadTMX("kirbyBG.tmx, kirbyBG2.tmx", function () {
             Q.state.reset({
                 level: 1,
-                score: 1234567,
+                score: 0,
                 health: 6,
                 powers: "normal",
                 lives: 4

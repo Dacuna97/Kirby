@@ -131,14 +131,16 @@ var game = function () {
             },
             kick_left: {
                 frames: [0],
-                rate: 0.1 / 1,
+                rate: 1 / 3,
                 loop: false,
+                trigger: "reset",
                 flip: "x"
             },
             kick_right: {
                 frames: [0],
-                rate: 0.1 / 1,
+                rate: 1 / 3,
                 loop: false,
+                trigger: "reset",
                 flip: false
             },
             eat_right: {
@@ -192,9 +194,16 @@ var game = function () {
                 });
                 this.add('2d, platformerControls, animation, eat');
                 Q.input.on("fire", this, "fly");
+                Q.input.on("action", this, "check_action");
                 this.on("shoot", this, "shootStar");
                 this.on("swell_anim", this, "swell_animation")
                 this.on("start_fly", this, "start_fly_animation");
+                this.on("reset", this, "reset_kirby");
+            },
+            reset_kirby: function () {
+                this.p.state = "";
+                this.p.sheet = "kirbyR";
+                this.size(true);
             },
             fly: function () {
                 //if Kirby is not flying and has not started swallowing air
@@ -206,7 +215,7 @@ var game = function () {
                 else if (this.p.state === "flying") {
                     this.p.gravity = 0.15;
                     if (this.p.vy < -50) {
-                        this.p.vy = -50;
+                        this.p.vy = -70;
                     } else {
                         this.p.vy -= 70;
                     }
@@ -242,30 +251,23 @@ var game = function () {
                 }));
                 this.del("fed");
                 this.add("eat");
+                this.reset_kirby();
                 this.p.reload = 0.2;
             },
             step: function (dt) {
-                console.log(this.p.y);
-
-                if (this.p.power === "fed")
-                    this.p.vx /= 3;
-                this.p.reload -= dt;
-                if (this.p.reload < 0)
-                    this.p.reload = 0;
-                this.p.invincible -= dt;
-                if (this.p.invincible < 0 && this.p.power != "fed") {
-                    this.p.invincible = 0;
-                    this.p.sensor = false;
-                    this.add("platformerControls");
-                }
-                if (this.p.vy >= 0) {
-                    this.p.vx /= 2;
-                }
+                console.log(this.p.state);
                 if (this.p.state === "flying") {
                     this.play("fly_" + this.p.direction);
                     this.p.vx /= 2;
                     if (this.p.y < 10) {
                         this.p.y = 10;
+                    }
+                }
+                else if (this.p.state === "kick" && this.p.reload > 0) {
+                    if (this.p.direction === "left") {
+                        this.p.vx -= 300;
+                    } else {
+                        this.p.vx += 300;
                     }
                 }
                 else if (this.p.state != "dead") {
@@ -298,8 +300,24 @@ var game = function () {
                         this.play(this.p.power + "_" + this.p.direction);
                     }
                 } else {
+                    //animation of death here
                     this.p.vx = 0;
                 }
+                if (this.p.power === "fed")
+                    this.p.vx /= 3;
+                this.p.reload -= dt;
+                if (this.p.reload < 0)
+                    this.p.reload = 0;
+                this.p.invincible -= dt;
+                if (this.p.invincible < 0 && this.p.power != "fed") {
+                    this.p.invincible = 0;
+                    this.p.sensor = false;
+                    this.add("platformerControls");
+                }
+                if (this.p.vy >= 0) {
+                    this.p.vx /= 2;
+                }
+
                 if (this.p.x >= 878.400 || this.p.x <= 180)
                     this.stage.unfollow();
                 else
@@ -309,7 +327,7 @@ var game = function () {
                     });
 
                 this.unswell_animation(dt);
-                this.kick();
+                //this.kick();
 
 
 
@@ -342,8 +360,16 @@ var game = function () {
                 }
 
             },
+            check_action: function () {
+                if ((this.p.state === "down" || this.p.state === "kick")) {
+                    this.p.sheet = "kirbyKick";
+                    this.p.state = "kick";
+                    this.play("kick_" + this.p.direction, 1);
+                    this.p.reload = 0.33;
+                }
+            },
             unswell_animation: function (dt) {
-                
+
                 //same but when Kirby releases the air
                 if (this.p.state === "unswell") {
                     this.p.gravity = 1;
@@ -369,30 +395,6 @@ var game = function () {
                 }
 
             },
-            kick: function () {
-                if ((this.p.state === "down" || this.p.state === "kick") && Q.inputs['action']) {
-                    //kick
-                    if (this.p.reload == 0) {
-                        this.p.state = "kick"
-                        this.p.sheet = 'kirbykick';
-                        this.size(true);
-                        //    $.when($.ajax()).then(function () {
-                        this.play("kick_" + this.p.direction);
-                        var aux = this;
-                        if (this.p.direction === "left") {
-                            this.p.vx -= 150;
-                        } else {
-                            this.p.vx += 150;
-                        }
-                        setTimeout(function () {
-                            aux.p.state = "";
-                            aux.p.sheet = 'kirbyR';
-                            aux.p.reload = 0.1;
-                        }, 300);
-
-                    }
-                }
-            },
 
 
         });
@@ -406,7 +408,11 @@ var game = function () {
                         if (collision.obj.p.state === "attack" || collision.obj.p.state === "kick") {
                             if (collision.obj.p.power === "eat" && collision.obj.p.state != "kick") {
                                 this.p.dead = true;
-
+                                if(collision.obj.p.state === "eat"){
+                                    Q.state.inc("score",300);
+                                } else if(collision.obj.p.state === "kick"){
+                                    Q.state.inc("score", 50);
+                                }
                                 if (this.p.x < collision.obj.p.x)
                                     this.p.vx = 100;
                                 else
@@ -462,8 +468,6 @@ var game = function () {
         Q.component("eat", {
             added: function () {
                 this.entity.p.power = "eat";
-                this.entity.p.sheet = "kirbyR";
-                this.entity.size(true);
             },
             extend: {
                 attack: function (stop) {
@@ -1007,11 +1011,11 @@ var game = function () {
             let array = [];
             array = Q.state.get("score").toString().split("");
             let size = array.length;
-            for(let i = 0; i < 7-size ; i++) {
+            for (let i = 0; i < 7 - size; i++) {
                 array.unshift("0");
             }
-            array.forEach((elem,index) => {
-               
+            array.forEach((elem, index) => {
+
                 stage.insert(new Q.NumberE({
                     x: 75 + index * 8,
                     y: 206,

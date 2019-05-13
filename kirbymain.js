@@ -1006,16 +1006,12 @@ var game = function () {
         Q.scene("hudsElements", function (stage) {
             let array = [];
             array = Q.state.get("score").toString().split("");
-<<<<<<< HEAD
-            array.forEach((elem, index) => {
-=======
             let size = array.length;
             for(let i = 0; i < 7-size ; i++) {
                 array.unshift("0");
             }
             array.forEach((elem,index) => {
                
->>>>>>> c21b74496fffd2ddb196cdbb1bbdb8dd68bf5fb0
                 stage.insert(new Q.NumberE({
                     x: 75 + index * 8,
                     y: 206,

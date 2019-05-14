@@ -18,7 +18,7 @@ var game = function () {
 
 
 
-    Q.load("kirby.json,kirby.png,tiles.png,enemy1.png, enemy1.json, hud.png, hud.json, numbers.png, numbers.json, powers.png, powers.json, health.png, health.json,scoreElem.png, kirbyElem.png, livesElem.json, livesElem.png, enemy_spark.png, enemy_spark.json, star.png, star.json", function () {
+    Q.load("kirby.json,kirby.png,tiles.png,enemy1.png, enemy1.json, hud.png, hud.json, numbers.png, numbers.json, powers.png, powers.json, health.png, health.json,scoreElem.png, kirbyElem.png, livesElem.json, livesElem.png, enemy_spark.png, enemy_spark.json, star.png, star.json, spark.png, spark.json", function () {
         // Sprites sheets can be created manually
         Q.sheet("tiles", "tiles.png", {
             tilew: 32,
@@ -73,7 +73,7 @@ var game = function () {
             move_down: {
                 frames: [6],
                 rate: 1 / 15,
-                loop: false
+                loop: true
             },
             fly_right: {
                 frames: [1, 2],
@@ -195,6 +195,7 @@ var game = function () {
                 this.add('2d, platformerControls, animation, eat');
                 Q.input.on("fire", this, "fly");
                 Q.input.on("action", this, "check_action");
+                Q.input.on("down", this, "check_down");
                 this.on("shoot", this, "shootStar");
                 this.on("swell_anim", this, "swell_animation")
                 this.on("start_fly", this, "start_fly_animation");
@@ -204,6 +205,11 @@ var game = function () {
                 this.p.state = "";
                 this.p.sheet = "kirbyR";
                 this.size(true);
+            },
+            check_down: function () {
+                if (this.p.power != "fed") {
+                    this.p.state = "down";
+                }
             },
             fly: function () {
                 //if Kirby is not flying and has not started swallowing air
@@ -255,7 +261,6 @@ var game = function () {
                 this.p.reload = 0.2;
             },
             step: function (dt) {
-
                 if (this.p.state === "flying") {
                     this.play("fly_" + this.p.direction);
                     this.p.vx /= 2;
@@ -286,11 +291,13 @@ var game = function () {
                             this.play("run_right");
                         } else if (this.p.vx < 0 && this.p.vy == 0) {
                             this.play("run_left");
-                        } else if (Q.inputs['down']) {
-                            this.p.state = "down";
-                            this.play("move_down");
-                        } else if (this.p.state === "down" && !Q.inputs['down']) {
-                            this.p.state = "";
+                        }
+                        else if (this.p.state === "down") {
+                            if (!Q.inputs["down"]) {
+                                this.p.state = "";
+                            } else {
+                                this.play("move_down");
+                            }
                         } else {
                             this.play("stand_" + this.p.direction);
                         }
@@ -504,7 +511,6 @@ var game = function () {
                     this.p.sheet = "kirbyShootStar";
                     this.size(true);
                     this.play('shoot_star_' + this.p.direction, 1);
-
                 }
             }
         });
@@ -615,6 +621,11 @@ var game = function () {
                 flip: "x",
                 trigger: "jump",
                 loop: false
+            },
+            attack: {
+                frames: [3, 4],
+                rate: 1 / 5,
+                loop: true
             }
         });
         Q.Sprite.extend("EnemySpark", {
@@ -627,6 +638,8 @@ var game = function () {
                     y: p.y, // be overridden on object creation
                     vx: 30,
                     sensor: true,
+                    attack_time: 0,
+                    spark_counter: 0,
                     dead: false
                 });
                 this.add('2d,aiBounce,enemy,animation,tween');
@@ -636,16 +649,86 @@ var game = function () {
                 this.p.vy = -200;
             },
             step: function (dt) {
-                console.log(this.p.y);
-                if (this.p.vx > 0) {
-                    this.play("move_left");
-                }
-                else {
-                    this.play("move_right");
+                this.p.attack_time += dt;
+                if (this.p.attack_time >= 4 && this.p.attack_time <= 6) {
+                    this.p.vx = 0;
+                    this.p.vy = 0;
+                    this.play("attack");
+                    if (this.p.spark_counter === 0) {
+                        this.p.spark_counter++;
+                        this.stage.insert(new Q.Spark({
+                            x: this.p.x - 28,
+                            y: this.p.y,
+                        }));
+                    }
+                } else if (this.p.attack_time > 6) {
+                    this.p.spark_counter = 0;
+                    let spark = Q("Spark");
+                    spark.destroy();
+                    this.p.attack_time = 0;
+                    this.p.direction === "right" ? this.p.vx = 30 : this.p.vx = -30;
+                } else if (this.p.attack_time < 4) {
+                    if (this.p.vx > 0) {
+                        console.log("moving_left");
+                        this.play("move_left");
+                    }
+                    else {
+                        console.log("moving_right");
+                        this.play("move_right");
+                    }
                 }
             }
         });
 
+        Q.compileSheets("spark.png", "spark.json");
+        Q.animations('spark_anim', {
+            spark: {
+                frames: [0, 1],
+                rate: 1 / 10,
+                loop: false,
+                trigger: "move"
+            }
+        });
+
+        Q.Sprite.extend("Spark", {
+
+            init: function (p) {
+                this._super(p, {
+                    sprite: "spark_anim",
+                    sheet: "spark", // Setting a sprite sheet sets sprite width and height
+                    x: p.x, // You can also set additional properties that can
+                    y: p.y, // be overridden on object creation
+                });
+
+                this.add('2d,animation');
+                this.on("bump.left, bump.top, bump.right, bump.bottom", function (collision) {
+                    if (collision.obj.isA("Player")) {
+                        collision.obj.destroy();
+                    }
+                });
+                this.on("move", this, "move_spark");
+                let spark = Q("EnemySpark").first();
+                this.p.enemy_x = spark.p.x;
+                this.p.enemy_y = spark.p.y;
+            },
+            move_spark: function () {
+                console.log("spark: " + this.p.x + " enemy: " + this.p.enemy_x);
+                if (this.p.x < this.p.enemy_x){//it is left move to up
+                    this.p.y = this.p.enemy_y - 28;
+                    this.p.x = this.p.enemy_x;
+                }
+                else if (this.p.y != this.p.enemy_y && this.p.x === this.p.enemy_x) { //it is up, move to right
+                    this.p.x = this.p.enemy_x + 28;
+                    this.p.y = this.p.enemy_y;
+                } else if(this.p.x > this.p.enemy_x) { // it is right, move to left
+                    this.p.x = this.p.enemy_x - 28;
+                    this.p.y = this.p.enemy_y;
+                }
+            },
+            step: function (dt) {
+                this.play("spark");
+            }
+        });
         Q.compileSheets("scoreElem.png");
 
         Q.Sprite.extend("ScoreE", {

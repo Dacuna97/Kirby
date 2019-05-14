@@ -640,6 +640,7 @@ var game = function () {
                     sensor: true,
                     attack_time: 0,
                     spark_counter: 0,
+                    distance_spark: 25,
                     dead: false
                 });
                 this.add('2d,aiBounce,enemy,animation,tween');
@@ -657,8 +658,9 @@ var game = function () {
                     if (this.p.spark_counter === 0) {
                         this.p.spark_counter++;
                         this.stage.insert(new Q.Spark({
-                            x: this.p.x - 28,
+                            x: this.p.x - this.p.distance_spark,
                             y: this.p.y,
+                            offset: this.p.distance_spark
                         }));
                     }
                 } else if (this.p.attack_time > 6) {
@@ -698,6 +700,7 @@ var game = function () {
                     sheet: "spark", // Setting a sprite sheet sets sprite width and height
                     x: p.x, // You can also set additional properties that can
                     y: p.y, // be overridden on object creation
+                    offset: p.distance_spark
                 });
 
                 this.add('2d,animation');
@@ -712,16 +715,15 @@ var game = function () {
                 this.p.enemy_y = spark.p.y;
             },
             move_spark: function () {
-                console.log("spark: " + this.p.x + " enemy: " + this.p.enemy_x);
                 if (this.p.x < this.p.enemy_x){//it is left move to up
-                    this.p.y = this.p.enemy_y - 28;
+                    this.p.y = this.p.enemy_y - this.p.offset;
                     this.p.x = this.p.enemy_x;
                 }
                 else if (this.p.y != this.p.enemy_y && this.p.x === this.p.enemy_x) { //it is up, move to right
-                    this.p.x = this.p.enemy_x + 28;
+                    this.p.x = this.p.enemy_x + this.p.offset;
                     this.p.y = this.p.enemy_y;
                 } else if(this.p.x > this.p.enemy_x) { // it is right, move to left
-                    this.p.x = this.p.enemy_x - 28;
+                    this.p.x = this.p.enemy_x - this.p.offset;
                     this.p.y = this.p.enemy_y;
                 }
             },

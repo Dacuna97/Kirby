@@ -706,7 +706,20 @@ var game = function () {
                 this.add('2d,animation');
                 this.on("bump.left, bump.top, bump.right, bump.bottom", function (collision) {
                     if (collision.obj.isA("Player")) {
-                        collision.obj.destroy();
+                        Q.state.p.health = Q.state.get("health") - 1;
+                        if (Q.state.get("health") == 0) {
+                            Q.state.p.lives = Q.state.get("lives") - 1;
+                            Q.stageScene("lostLife", 3, {});
+                            if (Q.state.get("lives") == 0) {
+                                collision.obj.play("die");
+                                collision.obj.p.state = "dead";
+                                collision.obj.p.vy = -500;
+                                collision.obj.del("platformerControls");
+                                Q.stageScene("endGame", 3, {
+                                    label: "You Died"
+                                });
+                            }
+                        }
                     }
                 });
                 this.on("move", this, "move_spark");

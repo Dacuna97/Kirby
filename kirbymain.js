@@ -4,8 +4,8 @@ var game = function () {
     // the Sprites, Scenes, Input and 2D module. The 2D module
     // includes the `TileLayer` class as well as the `2d` componet.
     var Q = window.Q = Quintus({
-            audioSupported: ['mp3', 'ogg']
-        })
+        audioSupported: ['mp3', 'ogg']
+    })
         .include("Sprites, Scenes, Input, 2D, Anim, Touch, UI, TMX,Audio")
         // Maximize this game to whatever the size of the browser is
         .setup({
@@ -255,7 +255,7 @@ var game = function () {
                 this.p.reload = 0.2;
             },
             step: function (dt) {
-                console.log(this.p.direction);
+
                 if (this.p.state === "flying") {
                     this.play("fly_" + this.p.direction);
                     this.p.vx /= 2;
@@ -419,7 +419,7 @@ var game = function () {
                                 else
                                     this.p.vx = -100;
 
-                                if(collision.obj.p.state != "kick") {
+                                if (collision.obj.p.state != "kick") {
                                     var aux = this;
 
                                     collision.obj.p.sensor = true;
@@ -433,7 +433,7 @@ var game = function () {
                                 }
                                 else
                                     this.destroy();
-                            } 
+                            }
                         } else {
                             if (collision.obj.p.invincible === 0) {
                                 Q.state.p.health = Q.state.get("health") - 1;
@@ -604,15 +604,17 @@ var game = function () {
         Q.animations('enemy_spark_anim', {
             move_right: {
                 frames: [0, 1, 2],
-                rate: 1 / 10,
+                rate: 1 / 5,
                 flip: false,
-                loop: true
+                trigger: "jump",
+                loop: false
             },
             move_left: {
                 frames: [0, 1, 2],
-                rate: 1 / 10,
+                rate: 1 / 5,
                 flip: "x",
-                loop: true
+                trigger: "jump",
+                loop: false
             }
         });
         Q.Sprite.extend("EnemySpark", {
@@ -623,15 +625,21 @@ var game = function () {
                     sheet: "enemy_spark", // Setting a sprite sheet sets sprite width and height
                     x: p.x, // You can also set additional properties that can
                     y: p.y, // be overridden on object creation
-                    vx: 40,
+                    vx: 30,
                     sensor: true,
                     dead: false
                 });
                 this.add('2d,aiBounce,enemy,animation,tween');
+                this.on("jump", this, "jumpSpark");
+            },
+            jumpSpark: function () {
+                this.p.vy = -200;
             },
             step: function (dt) {
-                if (this.p.vx > 0)
+                console.log(this.p.y);
+                if (this.p.vx > 0) {
                     this.play("move_left");
+                }
                 else {
                     this.play("move_right");
                 }
@@ -827,7 +835,7 @@ var game = function () {
             },
             step: function (dt) {
                 switch (Q.state.get("powers")) {
-                    case "normal" /*|| "eat" */ :
+                    case "normal" /*|| "eat" */:
                         this.play("pNormal");
                         break;
                     case "spark":
@@ -840,13 +848,13 @@ var game = function () {
 
         Q.scene("lostLife", function (stage) {
 
-                Q.state.p.health = 6;
-                Q.clearStages();
-                Q.stageScene('hud', 1);
-                Q.stageScene('hudsElements', 2);
-                Q.stageScene('level'+ Q.state.get("level"));
-                Q.state.p.powers = "normal";
-          
+            Q.state.p.health = 6;
+            Q.clearStages();
+            Q.stageScene('hud', 1);
+            Q.stageScene('hudsElements', 2);
+            Q.stageScene('level' + Q.state.get("level"));
+            Q.state.p.powers = "normal";
+
         });
 
         //************************************** */
@@ -883,7 +891,7 @@ var game = function () {
                 Q.stageScene('hud');
                 Q.stageScene('hudsElements');
                 Q.stageScene('level1');
-              
+
             });
             Q.input.on('confirm', this, () => {
                 Q.audio.stop();
@@ -1030,6 +1038,11 @@ var game = function () {
             }));
             stage.insert(new Q.EnemySpark({
                 x: 500,
+                y: 130
+            }));
+
+            stage.insert(new Q.Enemy1({
+                x: 700,
                 y: 130
             }));
 

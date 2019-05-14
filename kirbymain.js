@@ -331,9 +331,6 @@ var game = function () {
                 this.unswell_animation(dt);
                 //this.kick();
 
-
-
-
                 if (Q.inputs['action']) {
                     if (this.p.state === "flying") {
                         this.p.swell_time = 0;
@@ -408,31 +405,35 @@ var game = function () {
                     }
                     if (collision.obj.isA("Player") && collision.obj.p.state != "dead" && !this.p.dead) {
                         if (collision.obj.p.state === "attack" || collision.obj.p.state === "kick") {
-                            if (collision.obj.p.power === "eat" && collision.obj.p.state != "kick") {
+                            if (collision.obj.p.power === "eat" || collision.obj.p.state === "kick") {
                                 this.p.dead = true;
-                                if (collision.obj.p.state === "eat") {
+                                if (collision.obj.p.state === "attack") {
                                     Q.state.inc("score", 300);
                                 } else if (collision.obj.p.state === "kick") {
                                     Q.state.inc("score", 50);
                                 }
+                                Q.stageScene('hudsElements', 2);
+
                                 if (this.p.x < collision.obj.p.x)
                                     this.p.vx = 100;
                                 else
                                     this.p.vx = -100;
 
+                                if(collision.obj.p.state != "kick") {
+                                    var aux = this;
 
-                                var aux = this;
-
-                                collision.obj.p.sensor = true;
-                                var aux2 = collision.obj;
-                                this.del('aiBounce');
-                                aux2.p.power = "fed";
-                                setTimeout(function () {
-                                    aux.destroy();
-                                    aux2.p.sensor = false;
-                                }, 200);
-                            } else
-                                this.destroy();
+                                    collision.obj.p.sensor = true;
+                                    var aux2 = collision.obj;
+                                    this.del('aiBounce');
+                                    aux2.p.power = "fed";
+                                    setTimeout(function () {
+                                        aux.destroy();
+                                        aux2.p.sensor = false;
+                                    }, 200);
+                                }
+                                else
+                                    this.destroy();
+                            } 
                         } else {
                             if (collision.obj.p.invincible === 0) {
                                 Q.state.p.health = Q.state.get("health") - 1;
@@ -446,15 +447,13 @@ var game = function () {
                                 collision.obj.del("platformerControls");
                                 if (Q.state.get("health") == 0) {
                                     Q.state.p.lives = Q.state.get("lives") - 1;
-                                    Q.stageScene("endGame", 1, {
-                                        label: "You Died"
-                                    });
+                                    Q.stageScene("lostLife", 3, {});
                                     if (Q.state.get("lives") == 0) {
                                         collision.obj.play("die");
                                         collision.obj.p.state = "dead";
                                         collision.obj.p.vy = -500;
                                         collision.obj.del("platformerControls");
-                                        Q.stageScene("endGame", 1, {
+                                        Q.stageScene("endGame", 3, {
                                             label: "You Died"
                                         });
                                     }
@@ -540,7 +539,9 @@ var game = function () {
                     this.p.vx = 0;
                     this.play("collide", 1);
                     if (collision.obj.has("enemy")) {
+                        Q.state.inc("score", 100);
                         collision.obj.destroy();
+                        Q.stageScene('hudsElements', 2);
                     }
                 });
                 this.on("destroy", this, "destroyed");
@@ -646,6 +647,7 @@ var game = function () {
                 });
             }
         });
+
         Q.compileSheets("kirbyElem.png");
 
         Q.Sprite.extend("KirbyE", {
@@ -656,6 +658,7 @@ var game = function () {
                 });
             }
         });
+
         Q.compileSheets("livesElem.png", "livesElem.json");
         Q.animations('lives_anim', {
             l: {
@@ -835,11 +838,19 @@ var game = function () {
         });
 
 
+        Q.scene("lostLife", function (stage) {
+
+                Q.state.p.health = 6;
+                Q.clearStages();
+                Q.stageScene('hud', 1);
+                Q.stageScene('hudsElements', 2);
+                Q.stageScene('level'+ Q.state.get("level"));
+                Q.state.p.powers = "normal";
+          
+        });
 
         //************************************** */
         Q.scene("endGame", function (stage) {
-            //        Q.audio.stop('music_main.mp3');
-            //      Q.audio.play('music_die.mp3');
 
             var container = stage.insert(new Q.UI.Container({
                 x: Q.width / 2,
@@ -864,92 +875,35 @@ var game = function () {
             button.on("click", function () {
                 //           Q.audio.stop();
                 Q.state.p.health = 6;
-                Q.clearStages();
-                Q.stageScene('hud');
-
-                Q.stageScene('hudsElements');
-                Q.stageScene('level1');
                 Q.state.p.level = 1;
                 Q.state.p.score = 0;
                 Q.state.p.powers = "normal";
-
-                //           Q.audio.play('music_main.mp3', {
-                //             loop: true
-                //       });
+                Q.state.p.lives = 4;
+                Q.clearStages();
+                Q.stageScene('hud');
+                Q.stageScene('hudsElements');
+                Q.stageScene('level1');
+              
             });
             Q.input.on('confirm', this, () => {
                 Q.audio.stop();
                 Q.state.p.health = 6;
+                Q.state.p.level = 1;
+                Q.state.p.score = 0;
+                Q.state.p.powers = "normal";
+                Q.state.p.lives = 4;
                 Q.clearStages();
                 Q.stageScene('hud', 1);
                 Q.stageScene('hudsElements', 2);
                 Q.stageScene('level1');
-                Q.state.p.level = 1;
-                Q.state.p.score = 0;
-                Q.state.p.powers = "normal";
                 //              Q.audio.play('music_main.mp3', {
-                //                loop: true
-                //          });
-            });
-            Q.state.p.health = 6;
-            Q.stageScene('hud', 1);
-            Q.stageScene('hudsElements', 2);
-            container.fit(20);
-        });
-
-        //************not used***********//
-        Q.scene("winGame", function (stage) {
-            //          Q.audio.stop('music_main.mp3');
-            //        Q.audio.play('music_level_complete.mp3');
-
-            var container = stage.insert(new Q.UI.Container({
-                x: Q.width / 2,
-                y: Q.height / 2,
-                fill: "rgba(0,0,0,0.5)"
-            }));
-
-            var button = container.insert(new Q.UI.Button({
-                x: 0,
-                y: 0,
-                fill: "#CCCCCC",
-                label: "Play Again"
-            }));
-
-            var label = container.insert(new Q.UI.Text({
-                x: 10,
-                y: -10 - button.p.h,
-                label: stage.options.label
-            }));
-
-            button.on("click", function () {
-                Q.audio.stop();
-                Q.clearStages();
-                Q.stageScene('hud', 1);
-                Q.stageScene('level1');
-                Q.state.p.score = 0;
-                Q.state.p.health = 6;
-                Q.state.p.powers = "normal";
-                //              Q.audio.play('music_main.mp3', {
-                //                loop: true
-                //          });
-
-            });
-            Q.input.on('confirm', this, () => {
-                Q.audio.stop();
-                Q.clearStages();
-                Q.stageScene('hud', 1);
-                Q.stageScene('level1');
-                Q.state.p.score = 0;
-                Q.state.p.health = 6;
-                Q.state.p.powers = "normal";
-                //             Q.audio.play('music_main.mp3', {
                 //                loop: true
                 //          });
             });
             container.fit(20);
         });
+
         //   Q.compileSheets("mainTitle.png");
-
         Q.scene("mainTitle", function (stage) {
             var container = stage.insert(new Q.UI.Container({
                 x: Q.width / 2,
@@ -1092,6 +1046,10 @@ var game = function () {
                 x: true,
                 y: false
             });
+            stage.insert(new Q.Enemy1({
+                x: 200,
+                y: 130
+            }));
             // stage.viewport.scale=2;
         });
         Q.loadTMX("kirbyBG.tmx, kirbyBG2.tmx", function () {

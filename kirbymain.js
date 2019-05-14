@@ -4,8 +4,8 @@ var game = function () {
     // the Sprites, Scenes, Input and 2D module. The 2D module
     // includes the `TileLayer` class as well as the `2d` componet.
     var Q = window.Q = Quintus({
-        audioSupported: ['mp3', 'ogg']
-    })
+            audioSupported: ['mp3', 'ogg']
+        })
         .include("Sprites, Scenes, Input, 2D, Anim, Touch, UI, TMX,Audio")
         // Maximize this game to whatever the size of the browser is
         .setup({
@@ -255,22 +255,20 @@ var game = function () {
                 this.p.reload = 0.2;
             },
             step: function (dt) {
-                console.log(this.p.state);
+                console.log(this.p.direction);
                 if (this.p.state === "flying") {
                     this.play("fly_" + this.p.direction);
                     this.p.vx /= 2;
                     if (this.p.y < 10) {
                         this.p.y = 10;
                     }
-                }
-                else if (this.p.state === "kick" && this.p.reload > 0) {
+                } else if (this.p.state === "kick" && this.p.reload > 0) {
                     if (this.p.direction === "left") {
                         this.p.vx -= 300;
                     } else {
                         this.p.vx += 300;
                     }
-                }
-                else if (this.p.state != "dead") {
+                } else if (this.p.state != "dead") {
                     if (this.p.state != "attack") {
                         if (this.p.vy < 0 && this.p.state === "") { //jump
                             this.play("jump_" + this.p.direction);
@@ -297,7 +295,9 @@ var game = function () {
                             this.play("stand_" + this.p.direction);
                         }
                     } else {
+                        console.log(this.p.direction);
                         this.play(this.p.power + "_" + this.p.direction);
+                        console.log(this.p.direction);
                     }
                 } else {
                     //animation of death here
@@ -312,7 +312,9 @@ var game = function () {
                 if (this.p.invincible < 0 && this.p.power != "fed") {
                     this.p.invincible = 0;
                     this.p.sensor = false;
+                    let aux = this.p.direction;
                     this.add("platformerControls");
+                    this.p.direction = aux;
                 }
                 if (this.p.vy >= 0) {
                     this.p.vx /= 2;
@@ -408,9 +410,9 @@ var game = function () {
                         if (collision.obj.p.state === "attack" || collision.obj.p.state === "kick") {
                             if (collision.obj.p.power === "eat" && collision.obj.p.state != "kick") {
                                 this.p.dead = true;
-                                if(collision.obj.p.state === "eat"){
-                                    Q.state.inc("score",300);
-                                } else if(collision.obj.p.state === "kick"){
+                                if (collision.obj.p.state === "eat") {
+                                    Q.state.inc("score", 300);
+                                } else if (collision.obj.p.state === "kick") {
                                     Q.state.inc("score", 50);
                                 }
                                 if (this.p.x < collision.obj.p.x)
@@ -822,9 +824,11 @@ var game = function () {
             },
             step: function (dt) {
                 switch (Q.state.get("powers")) {
-                    case "normal" /*|| "eat" */: this.play("pNormal");
+                    case "normal" /*|| "eat" */ :
+                        this.play("pNormal");
                         break;
-                    case "spark": this.play("pSpark");
+                    case "spark":
+                        this.play("pSpark");
                         break;
                 }
             }

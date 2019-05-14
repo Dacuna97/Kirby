@@ -438,7 +438,7 @@ var game = function () {
                                 Q.state.p.health = Q.state.get("health") - 1;
 
                                 collision.obj.p.vy = -250;
-                                if (collision.obj.p.direction === "left")
+                                if (collision.obj.p.x > this.p.x)
                                     collision.obj.p.vx = 250;
                                 else
                                     collision.obj.p.vx = -250;

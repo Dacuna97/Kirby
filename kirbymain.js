@@ -301,9 +301,7 @@ var game = function () {
                             this.play("stand_" + this.p.direction);
                         }
                     } else {
-                        console.log(this.p.direction);
                         this.play(this.p.power + "_" + this.p.direction);
-                        console.log(this.p.direction);
                     }
                 } else {
                     //animation of death here
@@ -793,10 +791,8 @@ var game = function () {
                     this.p.direction === "right" ? this.p.vx = 30 : this.p.vx = -30;
                 } else if (this.p.attack_time < 4) {
                     if (this.p.vx > 0) {
-                        console.log("moving_left");
                         this.play("move_left");
                     } else {
-                        console.log("moving_right");
                         this.play("move_right");
                     }
                 }

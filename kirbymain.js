@@ -156,7 +156,7 @@ var game = function () {
                 loop: true
             },
             die: {
-                frames: [12],
+                frames: [0,1,2,3],
                 rate: 1 / 5
             },
             shoot_star_right: {

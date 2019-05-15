@@ -18,7 +18,7 @@ var game = function () {
 
 
 
-    Q.load("kirby.json,kirby.png,tiles.png,enemy1.png,mainKirby.png, enemy1.json, hud.png, hud.json, numbers.png, numbers.json, powers.png, powers.json, health.png, health.json,scoreElem.png, kirbyElem.png, livesElem.json, livesElem.png, enemy_spark.png, enemy_spark.json, star.png, star.json, spark.png, spark.json, cloud.png, cloud.json, enemy_aerial.png, enemy_aerial.json", function () {
+    Q.load("kirby.json,kirby.png,tiles.png,enemy1.png, gameover.png, mainKirby.png, enemy1.json, hud.png, hud.json, numbers.png, numbers.json, powers.png, powers.json, health.png, health.json,scoreElem.png, kirbyElem.png, livesElem.json, livesElem.png, enemy_spark.png, enemy_spark.json, star.png, star.json, spark.png, spark.json, cloud.png, cloud.json, enemy_aerial.png, enemy_aerial.json", function () {
         // Sprites sheets can be created manually
         Q.sheet("tiles", "tiles.png", {
             tilew: 32,
@@ -1105,8 +1105,8 @@ var game = function () {
             var button = container.insert(new Q.UI.Button({
                 x: 0,
                 y: 0,
-                fill: "#CCCCCC",
-                label: "Play Again"
+                asset:"gameover.png",
+                fill: "#CCCCCC"
             }));
 
             var label = container.insert(new Q.UI.Text({

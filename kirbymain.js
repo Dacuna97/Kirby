@@ -18,7 +18,7 @@ var game = function () {
 
 
 
-    Q.load("kirby.json,kirby.png,tiles.png,enemy1.png, enemy1.json, hud.png, hud.json, numbers.png, numbers.json, powers.png, powers.json, health.png, health.json,scoreElem.png, kirbyElem.png, livesElem.json, livesElem.png, enemy_spark.png, enemy_spark.json, star.png, star.json, spark.png, spark.json", function () {
+    Q.load("kirby.json,kirby.png,tiles.png,enemy1.png, enemy1.json, hud.png, hud.json, numbers.png, numbers.json, powers.png, powers.json, health.png, health.json,scoreElem.png, kirbyElem.png, livesElem.json, livesElem.png, enemy_spark.png, enemy_spark.json, star.png, star.json, spark.png, spark.json, cloud.png, cloud.json", function () {
         // Sprites sheets can be created manually
         Q.sheet("tiles", "tiles.png", {
             tilew: 32,
@@ -372,12 +372,29 @@ var game = function () {
                     this.p.state = "kick";
                     this.play("kick_" + this.p.direction, 1);
                     this.p.reload = 0.33;
+                } else if (this.p.state === "flying" || this.p.state === "unswell") {
+                    let offset = 0;
+                    let speed = 0;
+                    if (this.p.direction === "right") {
+                        offset = this.p.w + 10;
+                        speed = 50;
+                    } else {
+                        offset = (this.p.w + 10) * -1;
+                        speed = -50;
+                    }
+                    this.stage.insert(new Q.Cloud({
+                        x: this.p.x + offset,
+                        y: this.p.y,
+                        vx: speed,
+                        direction: this.p.direction
+                    }));
                 }
             },
             unswell_animation: function (dt) {
 
                 //same but when Kirby releases the air
                 if (this.p.state === "unswell") {
+                    this.p.vx = 0;
                     this.p.gravity = 1;
                     this.p.swell_time += dt; //add time to change from step to step in animation
                     if (this.p.swell_time < 1 / 10) {
@@ -559,6 +576,53 @@ var game = function () {
                 this.play("shoot");
             }
         });
+        Q.compileSheets("cloud.png", "cloud.json");
+        Q.animations('cloud_anim', {
+            shoot_right: {
+                frames: [0],
+                rate: 1,
+                loop: true,
+                flip: false
+            },
+            shoot_left: {
+                frames: [0],
+                rate: 1,
+                loop: true,
+                flip: "x"
+            }
+        });
+        Q.Sprite.extend("Cloud", {
+            init: function (p) {
+                this._super(p, {
+                    sprite: "cloud_anim",
+                    sheet: "cloud",
+                    x: p.x,
+                    y: p.y,
+                    vx: p.vx,
+                    time: 0,
+                    gravity: 0,
+                    direction: p.direction
+                });
+                this.add('2d, animation');
+                this.on("hit", function (collision) {
+                    this.p.vx = 0;
+                    if (collision.obj.has("enemy")) {
+                        Q.state.inc("score", 100);
+                        collision.obj.destroy();
+                        this.destroy();
+                        Q.stageScene('hudsElements', 2);
+                    }
+                });
+            },
+            step: function (dt) {
+                this.play("shoot_" + this.p.direction);
+                this.p.time += dt;
+                if (this.p.time >= 1) {
+                    this.destroy();
+                }
+            }
+
+        });
         Q.compileSheets("enemy1.png", "enemy1.json");
 
         Q.animations('enemy1_anim', {
@@ -739,14 +803,14 @@ var game = function () {
                 this.p.enemy_y = spark.p.y;
             },
             move_spark: function () {
-                if (this.p.x < this.p.enemy_x){//it is left move to up
+                if (this.p.x < this.p.enemy_x) {//it is left move to up
                     this.p.y = this.p.enemy_y - this.p.offset;
                     this.p.x = this.p.enemy_x;
                 }
                 else if (this.p.y != this.p.enemy_y && this.p.x === this.p.enemy_x) { //it is up, move to right
                     this.p.x = this.p.enemy_x + this.p.offset;
                     this.p.y = this.p.enemy_y;
-                } else if(this.p.x > this.p.enemy_x) { // it is right, move to left
+                } else if (this.p.x > this.p.enemy_x) { // it is right, move to left
                     this.p.x = this.p.enemy_x - this.p.offset;
                     this.p.y = this.p.enemy_y;
                 }
@@ -755,6 +819,8 @@ var game = function () {
                 this.play("spark");
             }
         });
+
+
         Q.compileSheets("scoreElem.png");
 
         Q.Sprite.extend("ScoreE", {

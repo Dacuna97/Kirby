@@ -706,19 +706,30 @@ var game = function () {
                 this.add('2d,animation');
                 this.on("bump.left, bump.top, bump.right, bump.bottom", function (collision) {
                     if (collision.obj.isA("Player")) {
-                        Q.state.p.health = Q.state.get("health") - 1;
-                        if (Q.state.get("health") == 0) {
-                            Q.state.p.lives = Q.state.get("lives") - 1;
-                            Q.stageScene("lostLife", 3, {});
-                            if (Q.state.get("lives") == 0) {
-                                collision.obj.play("die");
-                                collision.obj.p.state = "dead";
-                                collision.obj.p.vy = -500;
-                                collision.obj.del("platformerControls");
-                                Q.stageScene("endGame", 3, {
-                                    label: "You Died"
-                                });
+                        if (collision.obj.p.invincible === 0) {
+                            Q.state.p.health = Q.state.get("health") - 1;
+
+                            collision.obj.p.vy = -250;
+                            if (collision.obj.p.x > this.p.x)
+                                collision.obj.p.vx = 250;
+                            else
+                                collision.obj.p.vx = -250;
+                            collision.obj.p.sensor = true;
+                            collision.obj.del("platformerControls");
+                            if (Q.state.get("health") == 0) {
+                                Q.state.p.lives = Q.state.get("lives") - 1;
+                                Q.stageScene("lostLife", 3, {});
+                                if (Q.state.get("lives") == 0) {
+                                    collision.obj.play("die");
+                                    collision.obj.p.state = "dead";
+                                    collision.obj.p.vy = -500;
+                                    collision.obj.del("platformerControls");
+                                    Q.stageScene("endGame", 3, {
+                                        label: "You Died"
+                                    });
+                                }
                             }
+                            collision.obj.p.invincible += 0.4;
                         }
                     }
                 });

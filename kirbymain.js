@@ -4,8 +4,8 @@ var game = function () {
     // the Sprites, Scenes, Input and 2D module. The 2D module
     // includes the `TileLayer` class as well as the `2d` componet.
     var Q = window.Q = Quintus({
-        audioSupported: ['mp3', 'ogg']
-    })
+            audioSupported: ['mp3', 'ogg']
+        })
         .include("Sprites, Scenes, Input, 2D, Anim, Touch, UI, TMX,Audio")
         // Maximize this game to whatever the size of the browser is
         .setup({
@@ -291,8 +291,7 @@ var game = function () {
                             this.play("run_right");
                         } else if (this.p.vx < 0 && this.p.vy == 0) {
                             this.play("run_left");
-                        }
-                        else if (this.p.state === "down") {
+                        } else if (this.p.state === "down") {
                             if (!Q.inputs["down"]) {
                                 this.p.state = "";
                             } else {
@@ -367,7 +366,7 @@ var game = function () {
 
             },
             check_action: function () {
-                if ((this.p.state === "down" || this.p.state === "kick")) {
+                if ((this.p.state === "down" || this.p.state === "kick") && this.p.vy == 0) {
                     this.p.sheet = "kirbyKick";
                     this.p.state = "kick";
                     this.play("kick_" + this.p.direction, 1);
@@ -451,12 +450,11 @@ var game = function () {
                                     this.del('aiBounce');
                                     aux2.p.power = "fed";
                                     setTimeout(function () {
-                                        aux.destroy();
+                                        aux.kill();
                                         aux2.p.sensor = false;
                                     }, 200);
-                                }
-                                else
-                                    this.destroy();
+                                } else
+                                    this.kill();
                             }
                         } else {
                             if (collision.obj.p.invincible === 0) {
@@ -496,27 +494,29 @@ var game = function () {
             },
             extend: {
                 attack: function (stop) {
-                    if (!stop) {
-                        let direction = this.p.direction;
-                        this.del("platformerControls");
-                        this.p.state = "attack";
-                        this.p.sheet = "kirbyEat";
-                        this.p.direction = direction;
-                        this.size(true);
-                        this.play("eat_" + this.p.direction);
-                    } else {
-                        let direction = this.p.direction;
-                        this.p.sheet = "kirbyR";
-                        this.size(true);
-                        this.add("platformerControls");
-                        this.p.direction = direction;
-                        this.play("stand_" + this.p.direction);
-                        this.p.state = "";
-                        if (this.p.power === "fed") {
-                            this.del("eat");
-                            this.add("fed");
-                            this.p.sheet = "kirbyFed";
+                    if (this.p.vy == 0) {
+                        if (!stop) {
+                            let direction = this.p.direction;
+                            this.del("platformerControls");
+                            this.p.state = "attack";
+                            this.p.sheet = "kirbyEat";
+                            this.p.direction = direction;
                             this.size(true);
+                            this.play("eat_" + this.p.direction);
+                        } else {
+                            let direction = this.p.direction;
+                            this.p.sheet = "kirbyR";
+                            this.size(true);
+                            this.add("platformerControls");
+                            this.p.direction = direction;
+                            this.play("stand_" + this.p.direction);
+                            this.p.state = "";
+                            if (this.p.power === "fed") {
+                                this.del("eat");
+                                this.add("fed");
+                                this.p.sheet = "kirbyFed";
+                                this.size(true);
+                            }
                         }
                     }
                 }
@@ -563,7 +563,7 @@ var game = function () {
                     this.play("collide", 1);
                     if (collision.obj.has("enemy")) {
                         Q.state.inc("score", 100);
-                        collision.obj.destroy();
+                        collision.obj.kill();
                         Q.stageScene('hudsElements', 2);
                     }
                 });
@@ -655,6 +655,9 @@ var game = function () {
                 });
                 this.add('2d,aiBounce,enemy,animation');
             },
+            kill: function () {
+                this.destroy();
+            },
             step: function (dt) {
                 if (!this.p.dead) {
                     if (this.p.vx > 0)
@@ -696,6 +699,9 @@ var game = function () {
                 });
                 this.add("2d, aiBounce, animation, enemy");
                 this.p.initialY = this.p.y;
+            },
+            kill: function () {
+                this.destroy();
             },
             step: function (dt) {
                 if(this.p.vx > 0){
@@ -756,6 +762,12 @@ var game = function () {
                 this.add('2d,aiBounce,enemy,animation,tween');
                 this.on("jump", this, "jumpSpark");
             },
+            kill: function () {
+                let spark = Q("Spark");
+                if (spark)
+                    spark.destroy();
+                this.destroy();
+            },
             jumpSpark: function () {
                 this.p.vy = -200;
             },
@@ -783,8 +795,7 @@ var game = function () {
                     if (this.p.vx > 0) {
                         console.log("moving_left");
                         this.play("move_left");
-                    }
-                    else {
+                    } else {
                         console.log("moving_right");
                         this.play("move_right");
                     }
@@ -796,7 +807,7 @@ var game = function () {
         Q.animations('spark_anim', {
             spark: {
                 frames: [0, 1],
-                rate: 1 / 10,
+                rate: 1 / 25,
                 loop: false,
                 trigger: "move"
             }
@@ -816,31 +827,35 @@ var game = function () {
                 this.add('2d,animation');
                 this.on("bump.left, bump.top, bump.right, bump.bottom", function (collision) {
                     if (collision.obj.isA("Player")) {
-                        if (collision.obj.p.invincible === 0) {
-                            Q.state.p.health = Q.state.get("health") - 1;
-
-                            collision.obj.p.vy = -250;
-                            if (collision.obj.p.x > this.p.x)
-                                collision.obj.p.vx = 250;
-                            else
-                                collision.obj.p.vx = -250;
-                            collision.obj.p.sensor = true;
-                            collision.obj.del("platformerControls");
-                            if (Q.state.get("health") == 0) {
-                                Q.state.p.lives = Q.state.get("lives") - 1;
-                                Q.stageScene("lostLife", 3, {});
-                                if (Q.state.get("lives") == 0) {
-                                    collision.obj.play("die");
-                                    collision.obj.p.state = "dead";
-                                    collision.obj.p.vy = -500;
-                                    collision.obj.del("platformerControls");
-                                    Q.stageScene("endGame", 3, {
-                                        label: "You Died"
-                                    });
-                                }
-                            }
-                            collision.obj.p.invincible += 0.4;
+                        if (collision.obj.p.state === 'kick') {
+                            collision.obj.p.state = '';
+                            collision.obj.p.vx = 0;
+                            collision.obj.p.vy = 0;
                         }
+                        Q.state.p.health = Q.state.get("health") - 1;
+
+                        collision.obj.p.vy = -250;
+                        if (collision.obj.p.x > this.p.x)
+                            collision.obj.p.vx = 250;
+                        else
+                            collision.obj.p.vx = -250;
+                        collision.obj.p.sensor = true;
+                        collision.obj.del("platformerControls");
+                        if (Q.state.get("health") == 0) {
+                            Q.state.p.lives = Q.state.get("lives") - 1;
+                            Q.stageScene("lostLife", 3, {});
+                            if (Q.state.get("lives") == 0) {
+                                collision.obj.play("die");
+                                collision.obj.p.state = "dead";
+                                collision.obj.p.vy = -500;
+                                collision.obj.del("platformerControls");
+                                Q.stageScene("endGame", 3, {
+                                    label: "You Died"
+                                });
+                            }
+                        }
+                        collision.obj.p.invincible += 0.4;
+
                     }
                 });
                 this.on("move", this, "move_spark");
@@ -852,8 +867,7 @@ var game = function () {
                 if (this.p.x < this.p.enemy_x) {//it is left move to up
                     this.p.y = this.p.enemy_y - this.p.offset;
                     this.p.x = this.p.enemy_x;
-                }
-                else if (this.p.y != this.p.enemy_y && this.p.x === this.p.enemy_x) { //it is up, move to right
+                } else if (this.p.y != this.p.enemy_y && this.p.x === this.p.enemy_x) { //it is up, move to right
                     this.p.x = this.p.enemy_x + this.p.offset;
                     this.p.y = this.p.enemy_y;
                 } else if (this.p.x > this.p.enemy_x) { // it is right, move to left
@@ -1056,7 +1070,7 @@ var game = function () {
             },
             step: function (dt) {
                 switch (Q.state.get("powers")) {
-                    case "normal" /*|| "eat" */:
+                    case "normal" /*|| "eat" */ :
                         this.play("pNormal");
                         break;
                     case "spark":

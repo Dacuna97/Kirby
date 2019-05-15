@@ -18,7 +18,7 @@ var game = function () {
 
 
 
-    Q.load("kirby.json,kirby.png,tiles.png,enemy1.png, gameover.png, mainKirby.png, enemy1.json, hud.png, hud.json, numbers.png, numbers.json, powers.png, powers.json, health.png, health.json,scoreElem.png, kirbyElem.png, livesElem.json, livesElem.png, enemy_spark.png, enemy_spark.json, star.png, star.json, spark.png, spark.json, cloud.png, cloud.json, enemy_aerial.png, enemy_aerial.json", function () {
+    Q.load("kirby.json,kirby.png,tiles.png,enemy1.png, gameover.png, wingame.png, mainKirby.png, enemy1.json, hud.png, hud.json, numbers.png, numbers.json, powers.png, powers.json, health.png, health.json,scoreElem.png, kirbyElem.png, livesElem.json, livesElem.png, enemy_spark.png, enemy_spark.json, star.png, star.json, spark.png, spark.json, cloud.png, cloud.json, enemy_aerial.png, enemy_aerial.json", function () {
         // Sprites sheets can be created manually
         Q.sheet("tiles", "tiles.png", {
             tilew: 32,
@@ -354,8 +354,8 @@ var game = function () {
                             Q.state.inc("level", 1);
                             Q.stageScene('level2');
                         } else {
-                            Q.stageScene("endGame", 3, {
-                                label: "You Win"
+                            Q.stageScene("winGame", 3, {
+                                //label: "You Win"
                             });
                         }
 
@@ -1102,7 +1102,7 @@ var game = function () {
                 x: 0,
                 y: 0,
                 asset:"gameover.png",
-                fill: "#CCCCCC"
+                fill: "#CCCCCC",
             }));
 
             var label = container.insert(new Q.UI.Text({
@@ -1110,6 +1110,54 @@ var game = function () {
                 y: -10 - button.p.h,
                 label: stage.options.label
             }));
+
+            button.on("click", function () {
+                //           Q.audio.stop();
+                Q.state.p.health = 6;
+                Q.state.p.level = 1;
+                Q.state.p.score = 0;
+                Q.state.p.powers = "normal";
+                Q.state.p.lives = 4;
+                Q.clearStages();
+                Q.stageScene('hud');
+                Q.stageScene('hudsElements');
+                Q.stageScene('level1');
+
+            });
+            Q.input.on('confirm', this, () => {
+                Q.audio.stop();
+                Q.state.p.health = 6;
+                Q.state.p.level = 1;
+                Q.state.p.score = 0;
+                Q.state.p.powers = "normal";
+                Q.state.p.lives = 4;
+                Q.clearStages();
+                Q.stageScene('hud', 1);
+                Q.stageScene('hudsElements', 2);
+                Q.stageScene('level1');
+                //              Q.audio.play('music_main.mp3', {
+                //                loop: true
+                //          });
+            });
+            container.fit(20);
+        });
+
+        Q.scene("winGame", function (stage) {
+
+            var container = stage.insert(new Q.UI.Container({
+                x: Q.width / 2,
+                y: Q.height / 2,
+
+                fill: "rgba(0,0,0,0.5)"
+            }));
+
+            var button = container.insert(new Q.UI.Button({
+                x: 0,
+                y: 0,
+                asset:"wingame.png",
+                fill: "#CCCCCC",
+            }));
+
 
             button.on("click", function () {
                 //           Q.audio.stop();

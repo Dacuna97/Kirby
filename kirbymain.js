@@ -380,7 +380,7 @@ var game = function () {
                         speed = -50;
                     }
                     this.stage.insert(new Q.Cloud({
-                        x: this.p.x + offset,
+                        x: this.p.x + offset/1.5,
                         y: this.p.y,
                         vx: speed,
                         direction: this.p.direction
@@ -607,7 +607,7 @@ var game = function () {
                     this.destroy();
                     if (collision.obj.has("enemy")) {
                         Q.state.inc("score", 100);
-                        collision.obj.destroy();
+                        collision.obj.kill();
                         Q.stageScene('hudsElements', 2);
                     }
                 });
@@ -1304,6 +1304,18 @@ var game = function () {
             stage.insert(new Q.Enemy1({
                 x: 200,
                 y: 130
+            }));
+            stage.insert(new Q.EnemySpark({
+                x: 600,
+                y: 50
+            }));
+            stage.insert(new Q.EnemyAerial({
+                x: 300,
+                y: 50
+            }));
+            stage.insert(new Q.EnemyAerial({
+                x: 1000,
+                y: 60
             }));
             // stage.viewport.scale=2;
         });

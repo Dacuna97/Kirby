@@ -700,6 +700,9 @@ var game = function () {
                 this.add("2d, aiBounce, animation, enemy");
                 this.p.initialY = this.p.y;
             },
+            kill: function () {
+                this.destroy();
+            },
             step: function (dt) {
                 if(this.p.vx > 0){
                     this.play("fly_left");

@@ -606,10 +606,10 @@ var game = function () {
                 this.add('2d, animation');
                 this.on("hit", function (collision) {
                     this.p.vx = 0;
+                    this.destroy();
                     if (collision.obj.has("enemy")) {
                         Q.state.inc("score", 100);
                         collision.obj.destroy();
-                        this.destroy();
                         Q.stageScene('hudsElements', 2);
                     }
                 });

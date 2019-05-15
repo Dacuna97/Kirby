@@ -18,7 +18,7 @@ var game = function () {
 
 
 
-    Q.load("kirby.json,kirby.png,tiles.png,enemy1.png, enemy1.json, hud.png, hud.json, numbers.png, numbers.json, powers.png, powers.json, health.png, health.json,scoreElem.png, kirbyElem.png, livesElem.json, livesElem.png, enemy_spark.png, enemy_spark.json, star.png, star.json, spark.png, spark.json", function () {
+    Q.load("kirby.json,kirby.png,tiles.png,enemy1.png, enemy1.json, hud.png, hud.json, numbers.png, numbers.json, powers.png, powers.json, health.png, health.json,scoreElem.png, kirbyElem.png, livesElem.json, livesElem.png, enemy_spark.png, enemy_spark.json, star.png, star.json, spark.png, spark.json, cloud.png, cloud.json, enemy_aerial.png, enemy_aerial.json", function () {
         // Sprites sheets can be created manually
         Q.sheet("tiles", "tiles.png", {
             tilew: 32,
@@ -326,7 +326,7 @@ var game = function () {
                     this.p.vx /= 2;
                 }
 
-                if (this.p.x >= 878.400 || this.p.x <= 180)
+                if (this.p.x >= this.stage.max_x || this.p.x <= this.stage.min_x)
                     this.stage.unfollow();
                 else
                     this.stage.follow(this, {
@@ -350,7 +350,7 @@ var game = function () {
                     }
                 }
 
-                if (this.p.x >= 975 && this.p.x <= 982) {
+                if (this.p.x >= this.stage.door_min && this.p.x <= this.stage.door_max) {
                     if (Q.inputs['up']) {
                         if (Q.state.get("level") == 1) {
                             Q.state.inc("level", 1);
@@ -371,12 +371,29 @@ var game = function () {
                     this.p.state = "kick";
                     this.play("kick_" + this.p.direction, 1);
                     this.p.reload = 0.33;
+                } else if (this.p.state === "flying" || this.p.state === "unswell") {
+                    let offset = 0;
+                    let speed = 0;
+                    if (this.p.direction === "right") {
+                        offset = this.p.w + 10;
+                        speed = 50;
+                    } else {
+                        offset = (this.p.w + 10) * -1;
+                        speed = -50;
+                    }
+                    this.stage.insert(new Q.Cloud({
+                        x: this.p.x + offset,
+                        y: this.p.y,
+                        vx: speed,
+                        direction: this.p.direction
+                    }));
                 }
             },
             unswell_animation: function (dt) {
 
                 //same but when Kirby releases the air
                 if (this.p.state === "unswell") {
+                    this.p.vx = 0;
                     this.p.gravity = 1;
                     this.p.swell_time += dt; //add time to change from step to step in animation
                     if (this.p.swell_time < 1 / 10) {
@@ -559,6 +576,53 @@ var game = function () {
                 this.play("shoot");
             }
         });
+        Q.compileSheets("cloud.png", "cloud.json");
+        Q.animations('cloud_anim', {
+            shoot_right: {
+                frames: [0],
+                rate: 1,
+                loop: true,
+                flip: false
+            },
+            shoot_left: {
+                frames: [0],
+                rate: 1,
+                loop: true,
+                flip: "x"
+            }
+        });
+        Q.Sprite.extend("Cloud", {
+            init: function (p) {
+                this._super(p, {
+                    sprite: "cloud_anim",
+                    sheet: "cloud",
+                    x: p.x,
+                    y: p.y,
+                    vx: p.vx,
+                    time: 0,
+                    gravity: 0,
+                    direction: p.direction
+                });
+                this.add('2d, animation');
+                this.on("hit", function (collision) {
+                    this.p.vx = 0;
+                    if (collision.obj.has("enemy")) {
+                        Q.state.inc("score", 100);
+                        collision.obj.destroy();
+                        this.destroy();
+                        Q.stageScene('hudsElements', 2);
+                    }
+                });
+            },
+            step: function (dt) {
+                this.play("shoot_" + this.p.direction);
+                this.p.time += dt;
+                if (this.p.time >= 1) {
+                    this.destroy();
+                }
+            }
+
+        });
         Q.compileSheets("enemy1.png", "enemy1.json");
 
         Q.animations('enemy1_anim', {
@@ -604,7 +668,53 @@ var game = function () {
                 }
             }
         });
+        Q.compileSheets("enemy_aerial.png", "enemy_aerial.json");
 
+        Q.animations('enemy_aerial_anim', {
+            fly_right: {
+                frames: [0, 1],
+                rate: 1 / 10,
+                flip: false,
+                loop: true
+            },
+            fly_left: {
+                frames: [0, 1],
+                rate: 1 / 10,
+                flip: "x",
+                loop: true
+            }
+        });
+
+        Q.Sprite.extend("EnemyAerial", {
+            init: function (p) {
+                this._super(p, {
+                    sprite: "enemy_aerial_anim",
+                    sheet: "enemy_aerial", // Setting a sprite sheet sets sprite width and height
+                    x: p.x, // You can also set additional properties that can
+                    y: p.y, // be overridden on object creation
+                    vx: 40,
+                    vy: -40, 
+                    rangeY: 10, 
+                    gravity: 0
+                });
+                this.add("2d, aiBounce, animation, enemy");
+                this.p.initialY = this.p.y;
+            },
+            step: function (dt) {
+                if(this.p.vx > 0){
+                    this.play("fly_left");
+                } else {
+                    this.play("fly_right");
+                }
+                
+                if (this.p.y - this.p.initialY >= this.p.rangeY && this.p.vy > 0) {
+                    this.p.vy = -this.p.vy;
+                }
+                else if (-this.p.y + this.p.initialY >= this.p.rangeY && this.p.vy < 0) {
+                    this.p.vy = -this.p.vy;
+                }
+            }
+        });
 
 
 
@@ -751,7 +861,7 @@ var game = function () {
                 this.p.enemy_y = spark.p.y;
             },
             move_spark: function () {
-                if (this.p.x < this.p.enemy_x) { //it is left move to up
+                if (this.p.x < this.p.enemy_x) {//it is left move to up
                     this.p.y = this.p.enemy_y - this.p.offset;
                     this.p.x = this.p.enemy_x;
                 } else if (this.p.y != this.p.enemy_y && this.p.x === this.p.enemy_x) { //it is up, move to right
@@ -766,6 +876,8 @@ var game = function () {
                 this.play("spark");
             }
         });
+
+
         Q.compileSheets("scoreElem.png");
 
         Q.Sprite.extend("ScoreE", {
@@ -1146,7 +1258,10 @@ var game = function () {
         Q.scene("level1", function (stage) {
             Q.stageTMX("kirbyBG.tmx", stage);
             // Create the player and add them to the stage
-
+            stage.max_x = 878.400;
+            stage.min_x = 180;
+            stage.door_min = 975;
+            stage.door_max = 982;
             var player = stage.insert(new Q.Player());
             stage.add("viewport").follow(player, {
                 x: true,
@@ -1155,6 +1270,10 @@ var game = function () {
             stage.insert(new Q.Enemy1({
                 x: 200,
                 y: 130
+            }));
+            stage.insert(new Q.EnemyAerial({
+                x: 200,
+                y: 60
             }));
             stage.insert(new Q.EnemySpark({
                 x: 500,
@@ -1167,13 +1286,17 @@ var game = function () {
             }));
 
 
+
             // stage.viewport.scale=2;
 
         });
         Q.scene("level2", function (stage) {
             Q.stageTMX("kirbyBG2.tmx", stage);
             // Create the player and add them to the stage
-
+            stage.max_x = 1146.700;
+            stage.min_x = 131.700;
+            stage.door_min = 1197.1;
+            stage.door_max = 1202;
             var player = stage.insert(new Q.Player());
             stage.add("viewport").follow(player, {
                 x: true,

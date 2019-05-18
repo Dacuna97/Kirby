@@ -233,6 +233,7 @@ function loadKirby(Q) {
             this.p.reload = 0.2;
         },
         step: function (dt) {
+            console.log(this.p.power);
             if (this.p.state === "flying") {
                 this.play("fly_" + this.p.direction);
                 this.p.vx /= 2;
@@ -406,6 +407,7 @@ function loadKirby(Q) {
                         this.p.direction = direction;
                         this.size(true);
                         this.play("eat_" + this.p.direction);
+                        Q.audio.play("absorbing.mp3");
                     } else {
                         let direction = this.p.direction;
                         this.p.sheet = "kirbyR";
@@ -420,6 +422,11 @@ function loadKirby(Q) {
                             this.p.sheet = "kirbyFed";
                             this.size(true);
                         }
+                        Q.audio.stop("absorbing.mp3");
+                    }
+                   
+                    if(this.p.power == "fed" ) {
+                        Q.audio.stop("absorbing.mp3");
                     }
                 }
             }

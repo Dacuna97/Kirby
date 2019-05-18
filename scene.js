@@ -1,18 +1,18 @@
 function loadScenes(Q){
     Q.scene("lostLife", function (stage) {
-
-        Q.state.p.health = 6;
-        Q.clearStages();
-        Q.stageScene('hud', 1);
-        Q.stageScene('hudsElements', 2);
-        Q.stageScene('level' + Q.state.get("level"));
-        Q.state.p.powers = "normal";
-
+            Q.state.p.health = 6; 
+            Q.state.p.powers = "normal"; 
+            Q.clearStages();
+            Q.stageScene('hud', 1);
+            Q.stageScene('hudsElements', 2);
+            Q.stageScene('level' + Q.state.get("level")); 
+        
     });
 
     //************************************** */
     Q.scene("endGame", function (stage) {
-
+        Q.audio.stop("level1.mp3");	
+        Q.audio.play("gameOver.mp3");
         var container = stage.insert(new Q.UI.Container({
             x: Q.width / 2,
             y: Q.height / 2,
@@ -47,7 +47,7 @@ function loadScenes(Q){
 
         });
         Q.input.on('confirm', this, () => {
-            Q.audio.stop();
+           /// Q.audio.stop();
             Q.state.p.health = 6;
             Q.state.p.level = 1;
             Q.state.p.score = 0;
@@ -114,6 +114,8 @@ function loadScenes(Q){
 
     //   Q.compileSheets("mainTitle.png");
     Q.scene("mainTitle", function (stage) {
+        
+        Q.audio.play('intro.mp3',{ loop: true });
         var container = stage.insert(new Q.UI.Container({
             x: Q.width / 2,
             y: Q.height / 2,
@@ -131,23 +133,19 @@ function loadScenes(Q){
 
         button.on("click", function () {
             Q.clearStages();
-            Q.stageScene('hud');
-            Q.stageScene('hudsElements');
+            Q.stageScene('hud',1);
+            Q.stageScene('hudsElements',2);
             Q.stageScene('level1');
-            //           Q.audio.play('music_main.mp3', {
-            //             loop: true
-            //       });
 
         });
 
         Q.input.on('confirm', this, () => {
+            
             Q.clearStages();
             Q.stageScene('hud', 1);
             Q.stageScene('hudsElements', 2);
             Q.stageScene('level1');
-            Q.audio.play('music_main.mp3', {
-                loop: true
-            });
+            
         });
 
         container.fit(20);
@@ -225,7 +223,9 @@ function loadScenes(Q){
     });
 
     Q.scene("level1", function (stage) {
+
         Q.stageTMX("kirbyBG.tmx", stage);
+        Q.audio.play('level1.mp3',{ loop: true });
         // Create the player and add them to the stage
         stage.max_x = 878.400;
         stage.min_x = 180;

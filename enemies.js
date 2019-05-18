@@ -36,6 +36,7 @@ function loadEnemies(Q) {
                                 this.kill();
                         }
                     } else {
+                        Q.audio.play("hit.mp3");
                         if (collision.obj.p.invincible === 0) {
                             Q.state.p.health = Q.state.get("health") - 1;
 
@@ -47,9 +48,13 @@ function loadEnemies(Q) {
                             collision.obj.p.sensor = true;
                             collision.obj.del("platformerControls");
                             if (Q.state.get("health") == 0) {
-                                Q.state.p.lives = Q.state.get("lives") - 1;
-                                Q.stageScene("lostLife", 3, {});
+                                Q.state.p.lives = Q.state.get("lives") - 1;  
+                                Q.audio.stop("level1.mp3");	
+                                Q.audio.play("miss_life.mp3");
+                                 var a = setTimeout(function(){Q.stageScene("lostLife", 3, {});}, 3000);
+                                 
                                 if (Q.state.get("lives") == 0) {
+                                    clearTimeout(a);
                                     collision.obj.play("die");
                                     collision.obj.p.state = "dead";
                                     collision.obj.p.vy = -500;
@@ -273,6 +278,7 @@ function loadEnemies(Q) {
                         collision.obj.p.vx = 0;
                         collision.obj.p.vy = 0;
                     }
+                    Q.audio.play("hit.mp3");
                     Q.state.p.health = Q.state.get("health") - 1;
 
                     collision.obj.p.vy = -250;
@@ -284,7 +290,9 @@ function loadEnemies(Q) {
                     collision.obj.del("platformerControls");
                     if (Q.state.get("health") == 0) {
                         Q.state.p.lives = Q.state.get("lives") - 1;
-                        Q.stageScene("lostLife", 3, {});
+                        Q.audio.stop("level1.mp3");	
+                        Q.audio.play("miss_life.mp3");
+                        setTimeout(function(){Q.stageScene("lostLife", 3, {});}, 3000);
                         if (Q.state.get("lives") == 0) {
                             collision.obj.play("die");
                             collision.obj.p.state = "dead";

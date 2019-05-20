@@ -52,12 +52,12 @@ function loadEnemies(Q) {
                                 Q.state.p.lives = Q.state.get("lives") - 1;  
                                 Q.audio.stop("level1.mp3");	
                                 Q.audio.play("miss_life.mp3");
-                                 var a = setTimeout(function(){Q.stageScene("lostLife", 3, {});}, 3000);
+                                collision.obj.p.state = "dead";
+                                 var a = setTimeout(function(){Q.stageScene("lostLife", 3, {});}, 2900);
                                  
-                                if (Q.state.get("lives") == 0) {
+                                if (Q.state.get("lives") < 0) {
                                     clearTimeout(a);
                                     collision.obj.play("die");
-                                    collision.obj.p.state = "dead";
                                     collision.obj.p.vy = -500;
                                     collision.obj.del("platformerControls");
                                     Q.stageScene("endGame", 3, {
@@ -295,8 +295,9 @@ function loadEnemies(Q) {
                         Q.state.p.lives = Q.state.get("lives") - 1;
                         Q.audio.stop("level1.mp3");	
                         Q.audio.play("miss_life.mp3");
-                        setTimeout(function(){Q.stageScene("lostLife", 3, {});}, 3000);
-                        if (Q.state.get("lives") == 0) {
+                        collision.obj.p.state = "dead";
+                        setTimeout(function(){Q.stageScene("lostLife", 3, {});}, 2900);
+                        if (Q.state.get("lives") < 0) {
                             collision.obj.play("die");
                             collision.obj.p.state = "dead";
                             collision.obj.p.vy = -500;

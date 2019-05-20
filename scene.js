@@ -1,11 +1,15 @@
 function loadScenes(Q){
     Q.scene("lostLife", function (stage) {
+        Q.audio.stop();
+
+
             Q.state.p.health = 6; 
             Q.state.p.powers = "normal"; 
             Q.clearStages();
             Q.stageScene('hud', 1);
             Q.stageScene('hudsElements', 2);
             Q.stageScene('level' + Q.state.get("level")); 
+            Q.audio.play('level1.mp3',{ loop: true });
         
     });
 

@@ -54,7 +54,7 @@ function loadEnemies(Q) {
                                 collision.obj.p.state = "dead";
                                  var a = setTimeout(function(){Q.stageScene("lostLife", 3, {});}, 2900);
                                  
-                                if (Q.state.get("lives") == 0) {
+                                if (Q.state.get("lives") < 0) {
                                     clearTimeout(a);
                                     collision.obj.play("die");
                                     collision.obj.p.vy = -500;
@@ -294,7 +294,7 @@ function loadEnemies(Q) {
                         Q.audio.play("miss_life.mp3");
                         collision.obj.p.state = "dead";
                         setTimeout(function(){Q.stageScene("lostLife", 3, {});}, 2900);
-                        if (Q.state.get("lives") == 0) {
+                        if (Q.state.get("lives") < 0) {
                             collision.obj.play("die");
                             collision.obj.p.state = "dead";
                             collision.obj.p.vy = -500;

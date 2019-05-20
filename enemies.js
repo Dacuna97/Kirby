@@ -52,11 +52,10 @@ function loadEnemies(Q) {
                                 Q.audio.stop("level1.mp3");	
                                 Q.audio.play("miss_life.mp3");
                                  var a = setTimeout(function(){Q.stageScene("lostLife", 3, {});}, 3000);
-                                 
+                                 collision.obj.p.state = "dead";
                                 if (Q.state.get("lives") == 0) {
                                     clearTimeout(a);
                                     collision.obj.play("die");
-                                    collision.obj.p.state = "dead";
                                     collision.obj.p.vy = -500;
                                     collision.obj.del("platformerControls");
                                     Q.stageScene("endGame", 3, {

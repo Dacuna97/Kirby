@@ -233,7 +233,7 @@ function loadKirby(Q) {
             this.p.reload = 0.2;
         },
         step: function (dt) {
-            console.log(this.p.power);
+            console.log(this.p.state);
             if (this.p.state === "flying") {
                 this.play("fly_" + this.p.direction);
                 this.p.vx /= 2;
@@ -286,7 +286,7 @@ function loadKirby(Q) {
             if (this.p.reload < 0)
                 this.p.reload = 0;
             this.p.invincible -= dt;
-            if (this.p.invincible < 0 && this.p.power != "fed") {
+            if (this.p.invincible < 0 && this.p.power != "fed" && this.p.state!="dead") {
                 this.p.invincible = 0;
                 this.p.sensor = false;
                 let aux = this.p.direction;
@@ -407,6 +407,7 @@ function loadKirby(Q) {
                         this.p.direction = direction;
                         this.size(true);
                         this.play("eat_" + this.p.direction);
+                  //      if(Q.audio.active["absorbing.mp3"])
                         Q.audio.play("absorbing.mp3");
                     } else {
                         let direction = this.p.direction;
@@ -422,10 +423,6 @@ function loadKirby(Q) {
                             this.p.sheet = "kirbyFed";
                             this.size(true);
                         }
-                        Q.audio.stop("absorbing.mp3");
-                    }
-                   
-                    if(this.p.power == "fed" ) {
                         Q.audio.stop("absorbing.mp3");
                     }
                 }

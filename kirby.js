@@ -466,6 +466,7 @@ function loadKirby(Q) {
             this.entity.p.power = "spark";
             this.entity.p.spark_counter = 0;
             this.entity.p.distance_spark = 25;
+            Q.state.p.powers = "spark";
         },
         extend: {
             attack: function (stop) {

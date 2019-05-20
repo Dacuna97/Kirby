@@ -24,7 +24,7 @@ var game = function () {
 
 
     Q.load(["intro.mp3", "introDraw.mp3", "hit.mp3", "level1.mp3",  "miss_life.mp3", "absorbing.mp3"], function(){});
-    Q.loadTMX("kirbyBG.tmx, kirbyBG2.tmx, kirby.json,kirby.png,tiles.png,enemy1.png, gameover.png, wingame.png, mainKirby.png, enemy1.json, hud.png, hud.json, numbers.png, numbers.json, powers.png, powers.json, health.png, health.json,scoreElem.png, kirbyElem.png, livesElem.json, livesElem.png, enemy_spark.png, enemy_spark.json, star.png, star.json, spark.png, spark.json, cloud.png, cloud.json, enemy_aerial.png, enemy_aerial.json", function () {
+    Q.loadTMX("kirbyBG.tmx, kirbyBG2.tmx, kirby.json,kirby.png,tiles.png,enemy1.png, gameover.png, wingame.png, mainKirby.png, enemy1.json, hud.png, hud.json, numbers.png, numbers.json, powers.png, powers.json, health.png, health.json,scoreElem.png, kirbyElem.png, livesElem.json, livesElem.png, enemy_spark.png, enemy_spark.json, star.png, star.json, spark.png, spark.json, cloud.png, cloud.json, enemy_aerial.png, enemy_aerial.json, kirby_spark.png, kirby_spark.json", function () {
         Q.compileSheets("enemy1.png", "enemy1.json");
         Q.compileSheets("enemy_aerial.png", "enemy_aerial.json");
         Q.compileSheets("enemy_spark.png", "enemy_spark.json");
@@ -39,6 +39,7 @@ var game = function () {
         Q.compileSheets("numbers.png", "numbers.json");
         Q.compileSheets("powers.png", "powers.json");
         Q.compileSheets("hud.png", "hud.json");
+        Q.compileSheets("kirby_spark.png", "kirby_spark.json");
         // Sprites sheets can be created manually
         Q.sheet("tiles", "tiles.png", {
             tilew: 32,

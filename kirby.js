@@ -146,7 +146,12 @@ function loadKirby(Q) {
             loop: false,
             next: "stand_left",
             trigger: "shoot"
-        }
+        },
+        spark_attack: {
+            frames: [1, 2],
+            rate: 1 / 10,
+        },
+
     });
 
 
@@ -162,7 +167,8 @@ function loadKirby(Q) {
                 swell_time: 0,
                 reload: 0,
                 sensor: false,
-                invincible: 0
+                invincible: 0,
+                food: "",
             });
             this.add('2d, platformerControls, animation, eat');
             Q.input.on("fire", this, "fly");
@@ -181,6 +187,16 @@ function loadKirby(Q) {
         check_down: function () {
             if (this.p.power != "fed") {
                 this.p.state = "down";
+            } else {
+                this.del("fed");
+                if (this.p.food) {
+                    this.add(this.p.food);
+                    this.p.food = "";
+                } else {
+                    this.add("eat");
+                }
+                this.reset_kirby();
+
             }
         },
         fly: function () {
@@ -234,6 +250,8 @@ function loadKirby(Q) {
         },
         step: function (dt) {
             console.log(this.p.power);
+            console.log("sheet: " + this.p.sheet);
+            console.log("state: " + this.p.state);
             if (this.p.state === "flying") {
                 this.play("fly_" + this.p.direction);
                 this.p.vx /= 2;
@@ -274,7 +292,10 @@ function loadKirby(Q) {
                         this.play("stand_" + this.p.direction);
                     }
                 } else {
-                    this.play(this.p.power + "_" + this.p.direction);
+                    if (this.p.power === "eat" ||  this.p.power === "fed") {
+                        this.play(this.p.power + "_" + this.p.direction);
+                    }
+
                 }
             } else {
                 //animation of death here
@@ -424,8 +445,8 @@ function loadKirby(Q) {
                         }
                         Q.audio.stop("absorbing.mp3");
                     }
-                   
-                    if(this.p.power == "fed" ) {
+
+                    if (this.p.power == "fed") {
                         Q.audio.stop("absorbing.mp3");
                     }
                 }
@@ -441,7 +462,47 @@ function loadKirby(Q) {
             }
         }
     });
-
+    Q.component("spark", {
+        added: function () {
+            this.entity.p.power = "spark";
+            this.entity.p.spark_counter = 0;
+            this.entity.p.distance_spark = 25;
+        },
+        extend: {
+            attack: function (stop) {
+                if (!stop) {
+                    let direction = this.p.direction;
+                    this.p.state = "attack";
+                    this.del("platformerControls");
+                    this.p.spark_counter++;
+                    this.p.vy = 0;
+                    this.p.vx = 0;
+                    this.p.sheet = "kirbySpark";
+                    this.size(true);
+                    this.p.direction = direction;
+                    this.play("spark_attack");
+                    if (this.p.spark_counter === 1) {
+                        this.stage.insert(new Q.Spark({
+                            x: this.p.x - this.p.distance_spark,
+                            y: this.p.y,
+                            offset: this.p.distance_spark,
+                            owner: this
+                        }));
+                    }
+                } else {
+                    this.p.spark_counter = 0;
+                    let direction = this.p.direction;
+                    this.p.power = "eat";
+                    this.p.sheet = "kirbyR";
+                    this.size(true);
+                    this.add("platformerControls");
+                    this.p.direction = direction;
+                    this.play("stand_" + this.p.direction);
+                    this.p.state = "";
+                }
+            }
+        },
+    });
     Q.animations('star_anim', {
         shoot: {
             frames: [0, 1, 2, 3],

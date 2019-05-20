@@ -26,6 +26,7 @@ function loadEnemies(Q) {
 
                                 collision.obj.p.sensor = true;
                                 var aux2 = collision.obj;
+                                collision.obj.p.food = this.p.power;
                                 this.del('aiBounce');
                                 aux2.p.power = "fed";
                                 setTimeout(function () {
@@ -68,6 +69,9 @@ function loadEnemies(Q) {
                         }
                     }
                     //collision.obj.destroy();
+                } else if (collision.obj.isA("Spark") && collision.obj.p.owner.isA("Player")){
+                    this.destroy();
+                    Q.state.inc("score", 300);
                 }
             });
         }
@@ -204,8 +208,10 @@ function loadEnemies(Q) {
                 sensor: true,
                 attack_time: 0,
                 spark_counter: 0,
+                stop_attack: false,
                 distance_spark: 25,
-                dead: false
+                dead: false,
+                power: "spark"
             });
             this.add('2d,aiBounce,enemy,animation,tween');
             this.on("jump", this, "jumpSpark");
@@ -230,13 +236,13 @@ function loadEnemies(Q) {
                     this.stage.insert(new Q.Spark({
                         x: this.p.x - this.p.distance_spark,
                         y: this.p.y,
-                        offset: this.p.distance_spark
+                        offset: this.p.distance_spark,
+                        owner: this
                     }));
                 }
             } else if (this.p.attack_time > 6) {
                 this.p.spark_counter = 0;
-                let spark = Q("Spark");
-                spark.destroy();
+                this.p.stop_attack = true;
                 this.p.attack_time = 0;
                 this.p.direction === "right" ? this.p.vx = 30 : this.p.vx = -30;
             } else if (this.p.attack_time < 4) {
@@ -265,14 +271,11 @@ function loadEnemies(Q) {
             this._super(p, {
                 sprite: "spark_anim",
                 sheet: "spark", // Setting a sprite sheet sets sprite width and height
-                x: p.x, // You can also set additional properties that can
-                y: p.y, // be overridden on object creation
-                offset: p.distance_spark
             });
 
             this.add('2d,animation');
             this.on("bump.left, bump.top, bump.right, bump.bottom", function (collision) {
-                if (collision.obj.isA("Player")) {
+                if (collision.obj.isA("Player") && !this.p.owner.isA("Player")) {
                     if (collision.obj.p.state === 'kick') {
                         collision.obj.p.state = '';
                         collision.obj.p.vx = 0;
@@ -305,27 +308,34 @@ function loadEnemies(Q) {
                     }
                     collision.obj.p.invincible += 0.4;
 
+                } else if (this.p.owner.isA("Player") && collision.obj.has("enemy")){
+                    collision.obj.kill();
                 }
             });
             this.on("move", this, "move_spark");
-            let spark = Q("EnemySpark").first();
-            this.p.enemy_x = spark.p.x;
-            this.p.enemy_y = spark.p.y;
+            this.p.owner_x = this.p.owner.p.x;
+            this.p.owner_y = this.p.owner.p.y;
         },
         move_spark: function () {
-            if (this.p.x < this.p.enemy_x) {//it is left move to up
-                this.p.y = this.p.enemy_y - this.p.offset;
-                this.p.x = this.p.enemy_x;
-            } else if (this.p.y != this.p.enemy_y && this.p.x === this.p.enemy_x) { //it is up, move to right
-                this.p.x = this.p.enemy_x + this.p.offset;
-                this.p.y = this.p.enemy_y;
-            } else if (this.p.x > this.p.enemy_x) { // it is right, move to left
-                this.p.x = this.p.enemy_x - this.p.offset;
-                this.p.y = this.p.enemy_y;
+            if (this.p.x < this.p.owner_x) {//it is left move to up
+                this.p.y = this.p.owner_y - this.p.offset;
+                this.p.x = this.p.owner_x;
+            } else if (this.p.y != this.p.owner_y && this.p.x === this.p.owner_x) { //it is up, move to right
+                this.p.x = this.p.owner_x + this.p.offset;
+                this.p.y = this.p.owner_y;
+            } else if (this.p.x > this.p.owner_x) { // it is right, move to left
+                this.p.x = this.p.owner_x - this.p.offset;
+                this.p.y = this.p.owner_y;
             }
         },
         step: function (dt) {
             this.play("spark");
+            if( this.p.owner.has("enemy")  && this.p.owner.p.stop_attack){
+                this.p.owner.p.stop_attack = false;
+                this.destroy();  
+            } else if (!this.p.owner.has("enemy") && this.p.owner.p.state != "attack") {
+                this.destroy();
+            }
         }
     });
 }

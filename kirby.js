@@ -278,6 +278,8 @@ function loadKirby(Q) {
                 }
             } else {
                 //animation of death here
+                this.p.sheet = "kirbyDie";
+                this.play("die");
                 this.p.vx = 0;
             }
             if (this.p.power === "fed")

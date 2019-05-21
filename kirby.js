@@ -274,9 +274,9 @@ function loadKirby(Q) {
                         if (this.p.y > 580) {
                             this.play("die");
                             this.p.state = "dead";
-                            Q.stageScene("endGame", 3, {
-                                label: "You Died"
-                            });
+                            Q.audio.stop("level1.mp3");	
+                            Q.audio.play("miss_life.mp3");
+                            setTimeout(function(){Q.stageScene("lostLife", 3, {});}, 2900);
                         }
                     } else if (this.p.vx > 0 && this.p.vy == 0) {
                         this.play("run_right");

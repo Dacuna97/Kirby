@@ -15,7 +15,7 @@ function loadScenes(Q){
 
     //************************************** */
     Q.scene("endGame", function (stage) {
-        Q.audio.stop("level1.mp3");	
+        Q.audio.stop();	
         Q.audio.play("gameOver.mp3");
         var container = stage.insert(new Q.UI.Container({
             x: Q.width / 2,

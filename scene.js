@@ -268,6 +268,7 @@ function loadScenes(Q){
     Q.scene("level2", function (stage) {
         Q.stageTMX("kirbyBG2.tmx", stage);
         // Create the player and add them to the stage
+        Q.state.p.powers = "normal";
         stage.max_x = 1146.700;
         stage.min_x = 131.700;
         stage.door_min = 1197.1;

@@ -6,5 +6,7 @@
 	"kirbyFed": {"sx":0,"sy":17,"tileW":23,"tileH":24,"frames":6},
 	"kirbyShootStar": {"sx": 0, "sy": 41, "tileW": 24, "tileH": 22, "frames":2},
 	"kirbyKick":{"sx": 0, "sy": 81, "tileW": 22, "tileH": 16, "frames": 1},
-	"kirbyDie":{"sx": 0, "sy": 65, "tileW": 16, "tileH": 16, "frames": 4}
+	"kirbyDie":{"sx": 0, "sy": 65, "tileW": 16, "tileH": 16, "frames": 4},
+	"kirbyDoor":{"sx": 0, "sy": 100, "tileW": 16, "tileH": 16, "frames": 2}
+
 }

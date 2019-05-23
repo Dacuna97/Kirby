@@ -239,19 +239,23 @@ function loadEnemies(Q) {
                         offset: this.p.distance_spark,
                         owner: this
                     }));
+                    Q.audio.play("spark.mp3", {loop: true});
                 }
             } else if (this.p.attack_time > 6) {
                 this.p.spark_counter = 0;
                 this.p.stop_attack = true;
                 this.p.attack_time = 0;
                 this.p.direction === "right" ? this.p.vx = 30 : this.p.vx = -30;
+                Q.audio.stop("spark.mp3");
             } else if (this.p.attack_time < 4) {
                 if (this.p.vx > 0) {
                     this.play("move_left");
                 } else {
                     this.play("move_right");
                 }
+                Q.audio.stop("spark.mp3");
             }
+            
         }
     });
 

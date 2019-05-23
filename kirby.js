@@ -151,6 +151,12 @@ function loadKirby(Q) {
             frames: [1, 2],
             rate: 1 / 10,
         },
+        enter_door: {
+            frames: [0, 1],
+            rate: 1 / 5,
+            loop: false,
+            trigger: "enter"
+        }
 
     });
 
@@ -178,6 +184,7 @@ function loadKirby(Q) {
             this.on("swell_anim", this, "swell_animation")
             this.on("start_fly", this, "start_fly_animation");
             this.on("reset", this, "reset_kirby");
+            this.on("enter", this, "enter_door");
         },
         reset_kirby: function () {
             this.p.state = "";
@@ -274,9 +281,9 @@ function loadKirby(Q) {
                         if (this.p.y > 580) {
                             this.play("die");
                             this.p.state = "dead";
-                            Q.audio.stop("level1.mp3");	
+                            Q.audio.stop("level1.mp3");
                             Q.audio.play("miss_life.mp3");
-                            setTimeout(function(){Q.stageScene("lostLife", 3, {});}, 2900);
+                            setTimeout(function () { Q.stageScene("lostLife", 3, {}); }, 2900);
                         }
                     } else if (this.p.vx > 0 && this.p.vy == 0) {
                         this.play("run_right");
@@ -292,7 +299,7 @@ function loadKirby(Q) {
                         this.play("stand_" + this.p.direction);
                     }
                 } else {
-                    if (this.p.power === "eat" ||  this.p.power === "fed") {
+                    if (this.p.power === "eat" || this.p.power === "fed") {
                         this.play(this.p.power + "_" + this.p.direction);
                     }
 
@@ -309,7 +316,7 @@ function loadKirby(Q) {
             if (this.p.reload < 0)
                 this.p.reload = 0;
             this.p.invincible -= dt;
-            if (this.p.invincible < 0 && this.p.power != "fed" && this.p.state!="dead") {
+            if (this.p.invincible < 0 && this.p.power != "fed" && this.p.state != "dead") {
                 this.p.invincible = 0;
                 this.p.sensor = false;
                 let aux = this.p.direction;
@@ -346,18 +353,22 @@ function loadKirby(Q) {
 
             if (this.p.x >= this.stage.door_min && this.p.x <= this.stage.door_max) {
                 if (Q.inputs['up']) {
-                    if (Q.state.get("level") == 1) {
-                        Q.state.inc("level", 1);
-                        Q.stageScene('level2');
-                    } else {
-                        Q.stageScene("winGame", 3, {
-                            //label: "You Win"
-                        });
-                    }
-
+                    this.p.vy = 0;
+                    this.p.sheet = "kirbyDoor";
+                    this.play("enter_door", 1);
                 }
             }
 
+        },
+        enter_door: function () {
+            if (Q.state.get("level") == 1) {
+                Q.state.inc("level", 1);
+                Q.stageScene('level2');
+            } else {
+                Q.stageScene("winGame", 3, {
+                    //label: "You Win"
+                });
+            }
         },
         check_action: function () {
             if ((this.p.state === "down" || this.p.state === "kick") && this.p.vy == 0) {
@@ -430,7 +441,7 @@ function loadKirby(Q) {
                         this.p.direction = direction;
                         this.size(true);
                         this.play("eat_" + this.p.direction);
-                  //      if(Q.audio.active["absorbing.mp3"])
+                        //      if(Q.audio.active["absorbing.mp3"])
                         Q.audio.play("absorbing.mp3");
                     } else {
                         let direction = this.p.direction;
@@ -488,7 +499,7 @@ function loadKirby(Q) {
                             offset: this.p.distance_spark,
                             owner: this
                         }));
-                        Q.audio.play("spark.mp3", {loop: true});
+                        Q.audio.play("spark.mp3", { loop: true });
                     }
                 } else {
                     this.p.spark_counter = 0;

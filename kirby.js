@@ -488,6 +488,7 @@ function loadKirby(Q) {
                             offset: this.p.distance_spark,
                             owner: this
                         }));
+                        Q.audio.play("spark.mp3", {loop: true});
                     }
                 } else {
                     this.p.spark_counter = 0;
@@ -499,6 +500,7 @@ function loadKirby(Q) {
                     this.p.direction = direction;
                     this.play("stand_" + this.p.direction);
                     this.p.state = "";
+                    Q.audio.stop("spark.mp3");
                 }
             }
         },

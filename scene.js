@@ -70,7 +70,8 @@ function loadScenes(Q){
     });
 
     Q.scene("winGame", function (stage) {
-
+        Q.audio.stop();
+        Q.audio.play("win.mp3");
         var container = stage.insert(new Q.UI.Container({
             x: Q.width / 2,
             y: Q.height / 2,

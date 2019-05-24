@@ -144,15 +144,12 @@ function loadScenes(Q) {
             fill: "#CCCCCC",
         }));
 
-        button.on("click", function () {
-            Q.clearStages();
-            Q.stageScene('hud', 1);
-            Q.stageScene('hudsElements', 2);
-            Q.stageScene('level1');
-
-        });
-
         Q.input.on('confirm', this, () => {
+            Q.state.p.health = 6;
+            Q.state.p.level = 1;
+            Q.state.p.score = 0;
+            Q.state.p.powers = "normal";
+            Q.state.p.lives = 4;
             Q.audio.stop();
             Q.clearStages();
             Q.stageScene('hud', 1);

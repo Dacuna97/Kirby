@@ -259,9 +259,6 @@ function loadKirby(Q) {
             this.p.reload = 0.2;
         },
         step: function (dt) {
-            console.log(this.p.power);
-            console.log("sheet: " + this.p.sheet);
-            console.log("state: " + this.p.state);
             if (this.p.state === "flying") {
                 this.play("fly_" + this.p.direction);
                 this.p.vx /= 2;

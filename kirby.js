@@ -365,6 +365,8 @@ function loadKirby(Q) {
 
         },
         enter_door: function () {
+            Q.state.p.state = this.p.state;
+            Q.state.p.power = this.p.power;
             if (Q.state.get("level") == 1) {
                 Q.state.inc("level", 1);
                 Q.stageScene('level2');

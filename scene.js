@@ -1,21 +1,23 @@
-function loadScenes(Q){
+function loadScenes(Q) {
     Q.scene("lostLife", function (stage) {
         Q.audio.stop();
 
 
-            Q.state.p.health = 6; 
-            Q.state.p.powers = "normal"; 
-            Q.clearStages();
-            Q.stageScene('hud', 1);
-            Q.stageScene('hudsElements', 2);
-            Q.stageScene('level' + Q.state.get("level")); 
-            Q.audio.play('level1.mp3',{ loop: true });
-        
+        Q.state.p.health = 6;
+        Q.state.p.powers = "normal";
+        Q.clearStages();
+        Q.stageScene('hud', 1);
+        Q.stageScene('hudsElements', 2);
+        Q.stageScene('level' + Q.state.get("level"));
+        Q.audio.play('level1.mp3', {
+            loop: true
+        });
+
     });
 
     //************************************** */
     Q.scene("endGame", function (stage) {
-        Q.audio.stop();	
+        Q.audio.stop();
         Q.audio.play("gameOver.mp3");
         var container = stage.insert(new Q.UI.Container({
             x: Q.width / 2,
@@ -27,7 +29,7 @@ function loadScenes(Q){
         var button = container.insert(new Q.UI.Button({
             x: 0,
             y: 0,
-            asset:"gameover.png",
+            asset: "gameover.png",
             fill: "#CCCCCC",
         }));
 
@@ -61,7 +63,9 @@ function loadScenes(Q){
             Q.stageScene('hud', 1);
             Q.stageScene('hudsElements', 2);
             Q.stageScene('level1');
-            Q.audio.play('level1.mp3',{ loop: true });
+            Q.audio.play('level1.mp3', {
+                loop: true
+            });
             //              Q.audio.play('music_main.mp3', {
             //                loop: true
             //          });
@@ -82,7 +86,7 @@ function loadScenes(Q){
         var button = container.insert(new Q.UI.Button({
             x: 0,
             y: 0,
-            asset:"wingame.png",
+            asset: "wingame.png",
             fill: "#CCCCCC",
         }));
 
@@ -111,7 +115,9 @@ function loadScenes(Q){
             Q.stageScene('hud', 1);
             Q.stageScene('hudsElements', 2);
             Q.stageScene('level1');
-            Q.audio.play('level1.mp3',{ loop: true });
+            Q.audio.play('level1.mp3', {
+                loop: true
+            });
             //              Q.audio.play('music_main.mp3', {
             //                loop: true
             //          });
@@ -121,8 +127,8 @@ function loadScenes(Q){
 
     //   Q.compileSheets("mainTitle.png");
     Q.scene("mainTitle", function (stage) {
-        
-        
+
+
         var container = stage.insert(new Q.UI.Container({
             x: Q.width / 2,
             y: Q.height / 2,
@@ -140,8 +146,8 @@ function loadScenes(Q){
 
         button.on("click", function () {
             Q.clearStages();
-            Q.stageScene('hud',1);
-            Q.stageScene('hudsElements',2);
+            Q.stageScene('hud', 1);
+            Q.stageScene('hudsElements', 2);
             Q.stageScene('level1');
 
         });
@@ -152,15 +158,17 @@ function loadScenes(Q){
             Q.stageScene('hud', 1);
             Q.stageScene('hudsElements', 2);
             Q.stageScene('level1');
-            Q.audio.play('level1.mp3',{ loop: true });
-            
+            Q.audio.play('level1.mp3', {
+                loop: true
+            });
+
         });
 
         container.fit(20);
     });
 
 
-   
+
     Q.scene("hud", function (stage) {
         var container_hud = stage.insert(new Q.UI.Container({
             x: 124, // You can also set additional properties that can
@@ -234,6 +242,8 @@ function loadScenes(Q){
 
         Q.stageTMX("kirbyBG.tmx", stage);
         // Create the player and add them to the stage
+        Q.state.p.state = "";
+        Q.state.p.power = 'eat';
         stage.max_x = 878.400;
         stage.min_x = 180;
         stage.door_min = 975;
@@ -269,7 +279,9 @@ function loadScenes(Q){
     Q.scene("level2", function (stage) {
         Q.stageTMX("kirbyBG2.tmx", stage);
         // Create the player and add them to the stage
-        Q.state.p.powers = "normal";
+        //Q.state.p.powers = "normal";
+        //Q.state.p.state = "";
+        //Q.state.p.power = "";
         stage.max_x = 1146.700;
         stage.min_x = 131.700;
         stage.door_min = 1197.1;

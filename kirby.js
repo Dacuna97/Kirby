@@ -245,6 +245,7 @@ function loadKirby(Q) {
                 offset = this.p.w * -1;
                 speed = -100;
             }
+            Q.audio.play("shoot.mp3");
             this.stage.insert(new Q.Star({
                 x: this.p.x + offset,
                 y: this.p.y,

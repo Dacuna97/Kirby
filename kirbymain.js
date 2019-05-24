@@ -23,7 +23,7 @@ var game = function () {
     loadScenes(Q);
 
 
-    Q.load(["intro.mp3", "introDraw.mp3", "hit.mp3", "level1.mp3",  "miss_life.mp3", "absorbing.mp3", "gameOver.mp3","spark.mp3","win.mp3","shoot.mp3"], function(){});
+    Q.load(["intro.mp3", "introDraw.mp3", "hit.mp3", "level1.mp3",  "miss_life.mp3", "absorbing.mp3", "gameOver.mp3","spark.mp3","win.mp3","shoot.mp3","cloud.mp3"], function(){});
     Q.loadTMX("kirbyBG.tmx, kirbyBG2.tmx, kirby.json,kirby.png,tiles.png,enemy1.png, gameover.png, wingame.png, mainKirby.png, enemy1.json, hud.png, hud.json, numbers.png, numbers.json, powers.png, powers.json, health.png, health.json,scoreElem.png, kirbyElem.png, livesElem.json, livesElem.png, enemy_spark.png, enemy_spark.json, star.png, star.json, spark.png, spark.json, cloud.png, cloud.json, enemy_aerial.png, enemy_aerial.json, kirby_spark.png, kirby_spark.json", function () {
         Q.compileSheets("enemy1.png", "enemy1.json");
         Q.compileSheets("enemy_aerial.png", "enemy_aerial.json");

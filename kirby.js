@@ -387,6 +387,7 @@ function loadKirby(Q) {
                     offset = (this.p.w + 10) * -1;
                     speed = -50;
                 }
+                Q.audio.play("cloud.mp3");
                 this.stage.insert(new Q.Cloud({
                     x: this.p.x + offset / 1.5,
                     y: this.p.y,

@@ -168,15 +168,15 @@ function loadKirby(Q) {
                 sheet: "kirbyR", // Setting a sprite sheet sets sprite width and height
                 x: 180, // You can also set additional properties that can
                 y: -10, // be overridden on object creation
-                state: Q.state.p.state,
-                power: Q.state.p.power,
+                state: "",
+                power: "",
                 swell_time: 0,
                 reload: 0,
                 sensor: false,
                 invincible: 0,
                 food: "",
             });
-            this.add('2d, platformerControls, animation');
+            this.add('2d, platformerControls, animation,eat');
             this.add(Q.state.p.power)
             Q.input.on("fire", this, "fly");
             Q.input.on("action", this, "check_action");
@@ -355,8 +355,6 @@ function loadKirby(Q) {
 
             if (this.p.x >= this.stage.door_min && this.p.x <= this.stage.door_max) {
                 if (Q.inputs['up']) {
-                    Q.state.p.state = this.p.state;
-                    Q.state.p.power = this.p.power;
                     this.p.vy = 0;
                     this.p.sheet = "kirbyDoor";
                     this.play("enter_door", 1);
@@ -365,8 +363,6 @@ function loadKirby(Q) {
 
         },
         enter_door: function () {
-            Q.state.p.state = this.p.state;
-            Q.state.p.power = this.p.power;
             if (Q.state.get("level") == 1) {
                 Q.state.inc("level", 1);
                 Q.stageScene('level2');

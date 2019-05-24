@@ -239,8 +239,6 @@ function loadScenes(Q) {
 
         Q.stageTMX("kirbyBG.tmx", stage);
         // Create the player and add them to the stage
-        Q.state.p.state = "";
-        Q.state.p.power = 'eat';
         stage.max_x = 878.400;
         stage.min_x = 180;
         stage.door_min = 975;
@@ -276,7 +274,7 @@ function loadScenes(Q) {
     Q.scene("level2", function (stage) {
         Q.stageTMX("kirbyBG2.tmx", stage);
         // Create the player and add them to the stage
-        //Q.state.p.powers = "normal";
+        Q.state.p.powers = "normal";
         //Q.state.p.state = "";
         //Q.state.p.power = "";
         stage.max_x = 1146.700;

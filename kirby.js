@@ -194,7 +194,8 @@ function loadKirby(Q) {
         },
         check_down: function () {
             if (this.p.power != "fed") {
-                this.p.state = "down";
+                if (this.p.state === "")
+                    this.p.state = "down";
             } else {
                 this.del("fed");
                 if (this.p.food) {
@@ -285,7 +286,9 @@ function loadKirby(Q) {
                             this.p.state = "dead";
                             Q.audio.stop("level1.mp3");
                             Q.audio.play("miss_life.mp3");
-                            setTimeout(function () { Q.stageScene("lostLife", 3, {}); }, 2900);
+                            setTimeout(function () {
+                                Q.stageScene("lostLife", 3, {});
+                            }, 2900);
                         }
                     } else if (this.p.vx > 0 && this.p.vy == 0) {
                         this.play("run_right");
@@ -356,7 +359,7 @@ function loadKirby(Q) {
             if (this.p.x >= this.stage.door_min && this.p.x <= this.stage.door_max) {
                 if (Q.inputs['up']) {
                     Q.state.p.state = this.p.state;
-                    Q.state.p.power =this.p.power;
+                    Q.state.p.power = this.p.power;
                     this.p.vy = 0;
                     this.p.sheet = "kirbyDoor";
                     this.play("enter_door", 1);
@@ -504,7 +507,9 @@ function loadKirby(Q) {
                             offset: this.p.distance_spark,
                             owner: this
                         }));
-                        Q.audio.play("spark.mp3", { loop: true });
+                        Q.audio.play("spark.mp3", {
+                            loop: true
+                        });
                     }
                 } else {
                     this.p.spark_counter = 0;
